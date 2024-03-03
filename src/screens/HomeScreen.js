@@ -2,6 +2,7 @@ import {
   View,
   Text,
   Image,
+  Modal,
   TouchableOpacity,
   FlatList,
   StyleSheet,
@@ -9,22 +10,22 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { auth } from "../firebase";
 import React, { useState, useEffect } from "react";
-import { getDatabase, ref, onValue } from "firebase/database";
+import { getDatabase, ref, onValue,get } from "firebase/database";
 import { FloatingAction } from "react-native-floating-action";
-
 const HomeScreen = () => {
   const [userData, setUserData] = useState({});
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
   const [requestList, setRequestList] = useState([]);
+  const [isApproveModalVisible, setApproveModalVisible] = useState(false);
+  const [isDarkOverlayVisible, setIsDarkOverlayVisible] = useState(false);
 
   const profileImages = {
     female: require("../assets/images/woman.png"),
     male: require("../assets/images/man.png"),
     other: require("../assets/images/other.png"),
   };
-
   const fetchUserData = async () => {
     const user = auth.currentUser;
 
@@ -85,26 +86,31 @@ const HomeScreen = () => {
       position: 4,
     },
   ];
-
   const handleFloatingAction = (name) => {
+    setIsDarkOverlayVisible(!isDarkOverlayVisible);
     console.log(`Selected button: ${name}`);
     if (name === "Approve") {
-      console.log("approve");
+      //fetchRequestList();
+      //toggleApproveModal();
+      //hello
     }
   };
-
+  const handleFloatingActionPress=()=>{
+    setIsDarkOverlayVisible(!isDarkOverlayVisible); // Toggle overlay visibility
+  }
   const renderFloatingActionButton = () => {
     if (userData && userData.role !== "S") {
       return (
-        <FloatingAction
+          <FloatingAction
           actions={userData.role === "L" ? actions.slice(1) : actions}
           showBackground={false}
           position="left"
           style={styles.floatingActionButton}
+          onPressMain={handleFloatingActionPress} 
           onPressItem={(name) => {
-            console.log(`selected button: ${name}`);
+            handleFloatingAction(name);
           }}
-        />
+            />
       );
     }
     return null;
@@ -123,6 +129,21 @@ const HomeScreen = () => {
     {
       id: 2,
       title: "Quiz 2",
+      image: require("../assets/images/user.png"), // Replace with actual quiz image
+    },
+    {
+      id: 3,
+      title: "Quiz 3",
+      image: require("../assets/images/user.png"), // Replace with actual quiz image
+    },
+    {
+      id: 4,
+      title: "Quiz 4",
+      image: require("../assets/images/user.png"), // Replace with actual quiz image
+    },
+    {
+      id: 5,
+      title: "Quiz 5",
       image: require("../assets/images/user.png"), // Replace with actual quiz image
     },
     // Add more quizzes as needed
@@ -144,25 +165,24 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {renderFloatingActionButton()}
       <View style={styles.header}>
-        <View style={styles.greetingContainer}>
-          <Text style={styles.greetingText}>
-            {loading
-              ? "Loading..."
-              : userData
-              ? `Hi ${userData.fullName}`
-              : "User data not found"}
-          </Text>
-        </View>
-
-        <View style={styles.profileImageContainer}>
+      <View style={styles.profileImageContainer}>
           {userData && userData.profileImage && (
             <Image
               source={profileImages[userData.profileImage]}
               style={styles.profileImage}
             />
           )}
+        </View>
+        <View style={styles.greetingContainer}>
+          
+          <Text style={styles.greetingText}>
+            {loading
+              ? "Loading..."
+              : userData
+              ? `   Hello ${userData.fullName}`
+              : "User data not found"}
+          </Text>
         </View>
       </View>
       <View style={styles.pointsContainer}>
@@ -180,6 +200,8 @@ const HomeScreen = () => {
         renderItem={renderQuizCard}
         style={styles.quizList}
       />
+      {isDarkOverlayVisible && <View style={styles.darkOverlay} />}
+      {renderFloatingActionButton()}
     </SafeAreaView>
   );
 };
@@ -207,7 +229,7 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   greetingText: {
-    fontSize: 30,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#333", // Dark gray text color
   },
@@ -218,6 +240,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   profileImage: {
+    position:"relative",
     width: "100%",
     height: "100%",
   },
@@ -260,7 +283,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   floatingActionButton: {
-    position: "absolute",
+    position:"absolute",
     bottom: 16,
     right: 16,
     zIndex: 1, // Set a higher zIndex for the FAB
@@ -284,6 +307,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
   },
+  darkOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Dark overlay color
+  },
 });
-
 export default HomeScreen;
