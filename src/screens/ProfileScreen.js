@@ -139,7 +139,7 @@ const ProfilePage = () => {
 
     try {
       if (userData && userData.role == "L") {
-        Alert.alert("You already a lecturer");
+        Alert.alert("משתמש זה כבר משתמש מרצה");
         throw new Error("You already a lecturer");
       }
       await set(usersRef, {
@@ -166,11 +166,11 @@ const ProfilePage = () => {
             <Text
               style={{ paddingBottom: 50, textAlign: "center", fontSize: 24 }}
             >
-              Edit User Details
+              עריכת פרטי משתמש
             </Text>
             <TextInput
               style={styles.editInput}
-              placeholder="Enter new full name"
+              placeholder="הכנס שם מלא"
               placeholderTextColor="gray"
               value={editedFullName}
               onChangeText={(text) => setEditedFullName(text)}
@@ -180,19 +180,19 @@ const ProfilePage = () => {
               selectedValue={editedYear}
               onValueChange={(itemValue) => seteditedYear(itemValue)}
             >
-              <Picker.Item label="Year 1" value="1" />
-              <Picker.Item label="Year 2" value="2" />
-              <Picker.Item label="Year 3" value="3" />
-              <Picker.Item label="Year 4" value="4" />
+              <Picker.Item label="שנה א'" value="1" />
+              <Picker.Item label="שנה ב'" value="2" />
+              <Picker.Item label="שנה ג'" value="3" />
+              <Picker.Item label="שנה ד'" value="4" />
             </Picker>
             <TouchableOpacity style={styles.saveButton} onPress={saveChanges}>
-              <Text style={styles.saveButtonText}>Save Changes</Text>
+              <Text style={styles.saveButtonText}>שמור שינויים</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.closeButton}
               onPress={toggleEditModal}
             >
-              <Text style={styles.closeButtonText}>Close</Text>
+              <Text style={styles.closeButtonText}>סגור</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -208,11 +208,11 @@ const ProfilePage = () => {
             <Text
               style={{ paddingBottom: 50, textAlign: "center", fontSize: 24 }}
             >
-              Change Password
+              שינוי סיסמה
             </Text>
             <TextInput
               style={styles.editInput}
-              placeholder="Enter current password"
+              placeholder="הכנס סיסמה נוכחית"
               secureTextEntry
               placeholderTextColor="gray"
               value={currentPassword}
@@ -220,7 +220,7 @@ const ProfilePage = () => {
             />
             <TextInput
               style={styles.editInput}
-              placeholder="Enter new password"
+              placeholder="הכנס סיסמה חדשה"
               secureTextEntry
               placeholderTextColor="gray"
               value={newPassword}
@@ -228,7 +228,7 @@ const ProfilePage = () => {
             />
             <TextInput
               style={styles.editInput}
-              placeholder="Confirm new password"
+              placeholder="אימות סיסמה חדשה"
               secureTextEntry
               placeholderTextColor="gray"
               value={confirmPassword}
@@ -238,13 +238,13 @@ const ProfilePage = () => {
               style={styles.saveButton}
               onPress={savePasswordChange}
             >
-              <Text style={styles.saveButtonText}>Save Changes</Text>
+              <Text style={styles.saveButtonText}>שמור שינויים</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.closeButton}
               onPress={toggleChangePasswordModal}
             >
-              <Text style={styles.closeButtonText}>Close</Text>
+              <Text style={styles.closeButtonText}>סגירה</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -264,13 +264,13 @@ const ProfilePage = () => {
                 style={[styles.optionButton, { backgroundColor: "#BD89E5" }]}
                 onPress={toggleEditModal}
               >
-                <Text style={styles.optionText}>Edit Personal Data</Text>
+                <Text style={styles.optionText}>שינוי פרטים אישיים</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.optionButton, { backgroundColor: "#71B1E5" }]}
                 onPress={toggleChangePasswordModal}
               >
-                <Text style={styles.optionText}>Change Password</Text>
+                <Text style={styles.optionText}>שינוי סיסמה</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.optionsRow}>
@@ -278,13 +278,13 @@ const ProfilePage = () => {
                 style={[styles.optionButton, { backgroundColor: "#E15662" }]}
                 onPress={handleLogout}
               >
-                <Text style={styles.optionText}>Logout</Text>
+                <Text style={styles.optionText}>התנתקות</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.optionButton, { backgroundColor: "#FAC564" }]}
                 onPress={handleRequest}
               >
-                <Text style={styles.optionText}>Change to Lecturer</Text>
+                <Text style={styles.optionText}>הפיכה למרצה</Text>
               </TouchableOpacity>
             </View>
           </View>

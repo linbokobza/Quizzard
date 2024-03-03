@@ -99,25 +99,25 @@ const HomeScreen = () => {
 
   const actions = [
     {
-      text: "Approve Lecturer",
+      text: "אשר מרצה",
       icon: require("../assets/images/man.png"),
       name: "Approve",
       position: 1,
     },
     {
-      text: "Add Quiz",
+      text: "הוספת קוויז",
       icon: require("../assets/images/man.png"),
       name: "Add Quiz",
       position: 2,
     },
     {
-      text: "Add Question",
+      text: "הוספת שאלה",
       icon: require("../assets/images/man.png"),
       name: "Add Question",
       position: 3,
     },
     {
-      text: "Delete Quiz",
+      text: "מחיקת קוויז",
       icon: require("../assets/images/man.png"),
       name: "Delete Quiz",
       position: 4,
@@ -142,7 +142,7 @@ const HomeScreen = () => {
         <FloatingAction
           actions={userData.role === "L" ? actions.slice(1) : actions}
           showBackground={false}
-          position="left"
+          position="right"
           style={styles.floatingActionButton}
           onPressMain={handleFloatingActionPress}
           onPressItem={(name) => {
@@ -161,27 +161,27 @@ const HomeScreen = () => {
   const quizzes = [
     {
       id: 1,
-      title: "Quiz 1",
+      title: "אלגוריתמים",
       image: require("../assets/images/user.png"), // Replace with actual quiz image
     },
     {
       id: 2,
-      title: "Quiz 2",
+      title: "מבנה נתונים",
       image: require("../assets/images/user.png"), // Replace with actual quiz image
     },
     {
       id: 3,
-      title: "Quiz 3",
+      title: "אנליזה נומרית",
       image: require("../assets/images/user.png"), // Replace with actual quiz image
     },
     {
       id: 4,
-      title: "Quiz 4",
+      title: "חישוביות וסיבוכיות",
       image: require("../assets/images/user.png"), // Replace with actual quiz image
     },
     {
       id: 5,
-      title: "Quiz 5",
+      title: "לוגיקה 2",
       image: require("../assets/images/user.png"), // Replace with actual quiz image
     },
     // Add more quizzes as needed
@@ -212,10 +212,10 @@ const HomeScreen = () => {
   };
 
   const yearDisplay = {
-    1: "1st",
-    2: "2nd",
-    3: "3rd",
-    4: "4th",
+    1: "שנה ראשונה",
+    2: "שנה שניה",
+    3: "שנה שלישית",
+    4: "שנה רביעית",
   };
 
   return (
@@ -230,6 +230,15 @@ const HomeScreen = () => {
       {renderFloatingActionButton()}
 
       <View style={styles.header}>
+        <View style={styles.greetingContainer}>
+          <Text style={styles.greetingText}>
+            {loading
+              ? "Loading..."
+              : userData
+              ? `  שלום ${userData.fullName} `
+              : "User data not found"}
+          </Text>
+        </View>
         <View style={styles.profileImageContainer}>
           {userData && userData.profileImage && (
             <Image
@@ -238,22 +247,13 @@ const HomeScreen = () => {
             />
           )}
         </View>
-        <View style={styles.greetingContainer}>
-          <Text style={styles.greetingText}>
-            {loading
-              ? "Loading..."
-              : userData
-              ? `   Hello ${userData.fullName}`
-              : "User data not found"}
-          </Text>
-        </View>
       </View>
       <View style={styles.pointsContainer}>
-        <Text style={styles.pointsText}>Your Points: {userData.points}</Text>
+        <Text style={styles.pointsText}>נקודות: {userData.points}</Text>
       </View>
       <View style={styles.pointsContainer}>
         <Text style={styles.pointsText}>
-          You are in {yearDisplay[userData.year]} year
+          אתה נמצא ב{yearDisplay[userData.year]} ללימודיך
         </Text>
       </View>
 
@@ -294,6 +294,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color: "#333", // Dark gray text color
+    textAlign: 'right',
   },
   profileImageContainer: {
     width: 70,
@@ -313,6 +314,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color: "#333", // Dark gray text color
+    textAlign: 'right',
   },
   quizList: {
     flex: 1,
@@ -337,6 +339,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#333", // Dark gray text color
+
   },
   logoutButton: {
     padding: 8,

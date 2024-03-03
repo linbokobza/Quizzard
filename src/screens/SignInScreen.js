@@ -55,26 +55,26 @@ const SignInScreen = () => {
       </SafeAreaView>
       <View style={styles.formContainer}>
         <View style={styles.form}>
-          <Text style={styles.formLabel}>Email Address</Text>
+          <Text style={styles.formLabel}>אימייל</Text>
           <TextInput
             style={styles.input}
-            placeholder="email"
+            placeholder="הכנס אימייל"
             value={email}
             onChangeText={(value) => setEmail(value)}
           />
-          <Text style={styles.formLabel}>Password</Text>
+          <Text style={styles.formLabel}>סיסמה</Text>
           <TextInput
             style={styles.input}
             secureTextEntry
-            placeholder="password"
+            placeholder="הכנס סיסמה"
             value={password}
             onChangeText={(value) => setPassword(value)}
           />
           <TouchableOpacity>
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            <Text style={styles.forgotPasswordText}>שכחת סיסמה?</Text>
           </TouchableOpacity>
           <Button
-            title="Login"
+            title="התחברות"
             onPress={handleSubmit}
             buttonStyle={{ backgroundColor: "#F6E05E" }}
             textStyle={{ color: "#475569" }}
@@ -82,10 +82,10 @@ const SignInScreen = () => {
         </View>
 
         <View style={styles.signupContainer}>
-          <Text style={styles.signupText}>Don't have an account?</Text>
           <TouchableOpacity onPress={() => navigation.navigate("SignUpScreen")}>
-            <Text style={styles.signupLink}> Sign Up</Text>
+            <Text style={styles.signupLink}> הרשמה </Text>
           </TouchableOpacity>
+          <Text style={styles.signupText}>לא קיים משתמש?</Text>
         </View>
       </View>
     </View>

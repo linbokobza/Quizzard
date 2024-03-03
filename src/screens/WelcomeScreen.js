@@ -23,7 +23,7 @@ const WelcomeScreen = () => {
 
         <View style={styles.buttonContainer}>
           <Button
-            title="Sign Up"
+            title="הרשמה"
             onPress={() => navigation.navigate("SignUpScreen")}
             buttonStyle={{ backgroundColor: "#F6E05E" }}
             textStyle={{ color: "#475569" }}
@@ -31,7 +31,7 @@ const WelcomeScreen = () => {
 
           <View style={styles.buttonContainer}>
             <Button
-              title="Log In"
+              title="התחברות"
               onPress={() => navigation.navigate("SignInScreen")}
               buttonStyle={{ backgroundColor: "#F6E05E" }}
               textStyle={{ color: "#475569" }}

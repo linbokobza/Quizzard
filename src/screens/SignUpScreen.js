@@ -36,7 +36,7 @@ const SignUpScreen = () => {
 
   const handleSubmit = async () => {
     if (!email || !password || !fullName) {
-      Alert.alert("Error", "Please fill in all fields.");
+      Alert.alert("אנא מלא את כל השדות הדרושים");
     }
     const points = 0;
     if (email && password && fullName && role && year && gender) {
@@ -97,53 +97,53 @@ const SignUpScreen = () => {
       </SafeAreaView>
       <View style={styles.formContainer}>
         <View style={styles.form}>
-          <Text style={styles.formLabel}>Full Name</Text>
+          <Text style={styles.formLabel}>שם מלא</Text>
           <TextInput
             style={styles.input}
             value={fullName}
             onChangeText={(value) => setFullName(value)}
-            placeholder="Enter Name"
+            placeholder="הכנס שם מלא"
           />
-          <Text style={styles.formLabel}>Email Address</Text>
+          <Text style={styles.formLabel}>אימייל</Text>
           <TextInput
             style={styles.input}
             value={email}
             onChangeText={(value) => setEmail(value)}
-            placeholder="Enter Email"
+            placeholder="הכנס אימייל"
           />
-          <Text style={styles.formLabel}>Password</Text>
+          <Text style={styles.formLabel}>סיסמה</Text>
           <TextInput
             style={styles.input}
             secureTextEntry
             value={password}
             onChangeText={(value) => setPassword(value)}
-            placeholder="Enter Password"
+            placeholder="הכנס סיסמה"
           />
-          <Text style={styles.formLabel}>Year</Text>
+          <Text style={styles.formLabel}>שנת לימוד</Text>
           <Picker
             style={styles.input}
             selectedValue={year}
             onValueChange={(itemValue) => setYear(itemValue)}
           >
-            <Picker.Item label="Year 1" value="1" />
-            <Picker.Item label="Year 2" value="2" />
-            <Picker.Item label="Year 3" value="3" />
-            <Picker.Item label="Year 4" value="4" />
+            <Picker.Item label="שנה א'" value="1" />
+            <Picker.Item label="שנה ב'" value="2" />
+            <Picker.Item label="שנה ג'" value="3" />
+            <Picker.Item label="שנה ד'" value="4" />
           </Picker>
 
-          <Text style={styles.formLabel}>Gender</Text>
+          <Text style={styles.formLabel}>מגדר</Text>
           <Picker
             style={styles.input}
             selectedValue={gender}
             onValueChange={(itemValue) => setGender(itemValue)}
           >
-            <Picker.Item label="Female" value="female" />
-            <Picker.Item label="Male" value="male" />
-            <Picker.Item label="Other" value="other" />
+            <Picker.Item label="אישה" value="female" />
+            <Picker.Item label="גבר" value="male" />
+            <Picker.Item label="אחר" value="other" />
           </Picker>
 
           <Button
-            title="Sign Up"
+            title="הרשמה"
             onPress={handleSubmit}
             buttonStyle={{ backgroundColor: "#F6E05E" }}
             textStyle={{ color: "#475569" }}
@@ -155,9 +155,9 @@ const SignUpScreen = () => {
           )}
         </View>
         <View style={styles.loginContainer}>
-          <Text style={styles.loginText}>Already have an account?</Text>
+          <Text style={styles.loginText}>משתמש קיים?</Text>
           <TouchableOpacity onPress={() => navigation.navigate("SignInScreen")}>
-            <Text style={styles.loginLink}>Login</Text>
+            <Text style={styles.loginLink}>התחברות</Text>
           </TouchableOpacity>
         </View>
       </View>
