@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getDatabase, ref, set, onValue, update } from "firebase/database";
-import { auth } from "../firebase"; // Assuming you have a firebase.js file where you initialize Firebase
+import { auth } from "../firebase";
 import {
   View,
   Text,
@@ -143,8 +143,9 @@ const ProfilePage = () => {
         throw new Error("You already a lecturer");
       }
       await set(usersRef, {
+        fullName: userData.fullName,
         email: user.email,
-        approved: "waiting",
+        status: "waiting",
       });
 
       console.log("User information added to the database successfully!");

@@ -10,27 +10,63 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { auth } from "../firebase";
 import React, { useState, useEffect } from "react";
-import { getDatabase, ref, onValue,get } from "firebase/database";
+import { getDatabase, update, ref, onValue, get } from "firebase/database";
 import { FloatingAction } from "react-native-floating-action";
+import RequestModal from "../components/RequestModal";
+
 const HomeScreen = () => {
   const [userData, setUserData] = useState({});
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState("");
-  const [isModalVisible, setModalVisible] = useState(false);
   const [requestList, setRequestList] = useState([]);
   const [isApproveModalVisible, setApproveModalVisible] = useState(false);
   const [isDarkOverlayVisible, setIsDarkOverlayVisible] = useState(false);
+
+  const toggleApproveModal = () => {
+    setApproveModalVisible(!isApproveModalVisible);
+  };
+
+  const handleRequest = async (requestId, status) => {
+    try {
+      const db = getDatabase();
+
+      const requestRef = ref(db, `RequestLecturer/${requestId}`);
+      const requestSnapshot = await get(requestRef);
+      const requestEmail = requestSnapshot.val().email;
+
+      const userDataRef = ref(db, `users/`);
+      const usersSnapshot = await get(userDataRef);
+      const usersData = usersSnapshot.val();
+
+      const userEntry = Object.entries(usersData).find(
+        ([userId, userData]) => userData.email === requestEmail
+      );
+
+      const [userId, userData] = userEntry;
+
+      if (status === "true") {
+        await update(requestRef, { status: "Approved" });
+        await update(ref(db, `users/${userId}`), { role: "L" });
+      } else {
+        await update(requestRef, { status: "Declined" });
+      }
+
+      // Close the modal or update the state as needed
+    } catch (error) {
+      console.error("Error approving request:", error);
+    }
+  };
 
   const profileImages = {
     female: require("../assets/images/woman.png"),
     male: require("../assets/images/man.png"),
     other: require("../assets/images/other.png"),
   };
+
   const fetchUserData = async () => {
     const user = auth.currentUser;
+    const db = getDatabase();
 
     if (user) {
-      const db = getDatabase();
       const userRef = ref(db, `users/${user.uid}`);
 
       const userDataListener = onValue(
@@ -60,6 +96,7 @@ const HomeScreen = () => {
       setLoading(false);
     }
   };
+
   const actions = [
     {
       text: "Approve Lecturer",
@@ -86,31 +123,32 @@ const HomeScreen = () => {
       position: 4,
     },
   ];
+
   const handleFloatingAction = (name) => {
     setIsDarkOverlayVisible(!isDarkOverlayVisible);
-    console.log(`Selected button: ${name}`);
     if (name === "Approve") {
-      //fetchRequestList();
-      //toggleApproveModal();
-      //hello
+      toggleApproveModal();
+      fetchRequestList();
     }
   };
-  const handleFloatingActionPress=()=>{
+
+  const handleFloatingActionPress = () => {
     setIsDarkOverlayVisible(!isDarkOverlayVisible); // Toggle overlay visibility
-  }
+  };
+
   const renderFloatingActionButton = () => {
     if (userData && userData.role !== "S") {
       return (
-          <FloatingAction
+        <FloatingAction
           actions={userData.role === "L" ? actions.slice(1) : actions}
           showBackground={false}
           position="left"
           style={styles.floatingActionButton}
-          onPressMain={handleFloatingActionPress} 
+          onPressMain={handleFloatingActionPress}
           onPressItem={(name) => {
             handleFloatingAction(name);
           }}
-            />
+        />
       );
     }
     return null;
@@ -156,6 +194,23 @@ const HomeScreen = () => {
     </TouchableOpacity>
   );
 
+  const fetchRequestList = async () => {
+    const db = getDatabase();
+    try {
+      const requestsRef = ref(db, "RequestLecturer/");
+      onValue(requestsRef, (snapshot) => {
+        const data = snapshot.val();
+        const newRequest = Object.entries(data)
+          .filter(([_, request]) => request.status === "waiting")
+          .map(([requestId, request]) => ({ ...request, id: requestId }));
+        setRequestList(newRequest);
+      });
+      const snapshot = await get(requestsRef);
+    } catch (error) {
+      console.error("Error fetching request list:", error);
+    }
+  };
+
   const yearDisplay = {
     1: "1st",
     2: "2nd",
@@ -165,8 +220,17 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <RequestModal
+        isVisible={isApproveModalVisible}
+        onRequestClose={toggleApproveModal}
+        requestList={requestList}
+        handleRequest={handleRequest}
+      />
+
+      {renderFloatingActionButton()}
+
       <View style={styles.header}>
-      <View style={styles.profileImageContainer}>
+        <View style={styles.profileImageContainer}>
           {userData && userData.profileImage && (
             <Image
               source={profileImages[userData.profileImage]}
@@ -175,7 +239,6 @@ const HomeScreen = () => {
           )}
         </View>
         <View style={styles.greetingContainer}>
-          
           <Text style={styles.greetingText}>
             {loading
               ? "Loading..."
@@ -205,7 +268,6 @@ const HomeScreen = () => {
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -240,7 +302,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   profileImage: {
-    position:"relative",
+    position: "relative",
     width: "100%",
     height: "100%",
   },
@@ -283,7 +345,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   floatingActionButton: {
-    position:"absolute",
+    position: "absolute",
     bottom: 16,
     right: 16,
     zIndex: 1, // Set a higher zIndex for the FAB
@@ -309,7 +371,7 @@ const styles = StyleSheet.create({
   },
   darkOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Dark overlay color
+    backgroundColor: "rgba(0, 0, 0, 0.6)", // Dark overlay color
   },
 });
 export default HomeScreen;
