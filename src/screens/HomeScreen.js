@@ -13,6 +13,7 @@ import React, { useState, useEffect } from "react";
 import { getDatabase, update, ref, onValue, get } from "firebase/database";
 import { FloatingAction } from "react-native-floating-action";
 import RequestModal from "../components/RequestModal";
+import AddQuizModal from "../components/AddQuizModal";
 
 const HomeScreen = () => {
   const [userData, setUserData] = useState({});
@@ -20,9 +21,15 @@ const HomeScreen = () => {
   const [requestList, setRequestList] = useState([]);
   const [isApproveModalVisible, setApproveModalVisible] = useState(false);
   const [isDarkOverlayVisible, setIsDarkOverlayVisible] = useState(false);
+  const [isAddQuizModalVisible, setAddQuizModalVisible] = useState(false);
+  const [quizzes, setQuizzes] = useState([]);
 
   const toggleApproveModal = () => {
     setApproveModalVisible(!isApproveModalVisible);
+  };
+
+  const toggleAddQuizModal = () => {
+    setAddQuizModalVisible(!isAddQuizModalVisible);
   };
 
   const handleRequest = async (requestId, status) => {
@@ -130,6 +137,10 @@ const HomeScreen = () => {
       toggleApproveModal();
       fetchRequestList();
     }
+    if (name === "Add Quiz") {
+      toggleAddQuizModal();
+      fetchRequestList();
+    }
   };
 
   const handleFloatingActionPress = () => {
@@ -156,46 +167,77 @@ const HomeScreen = () => {
 
   useEffect(() => {
     fetchUserData();
+    fetchQuizzes();
   }, []);
 
-  const quizzes = [
-    {
-      id: 1,
-      title: "אלגוריתמים",
-      image: require("../assets/images/user.png"), // Replace with actual quiz image
-    },
-    {
-      id: 2,
-      title: "מבנה נתונים",
-      image: require("../assets/images/user.png"), // Replace with actual quiz image
-    },
-    {
-      id: 3,
-      title: "אנליזה נומרית",
-      image: require("../assets/images/user.png"), // Replace with actual quiz image
-    },
-    {
-      id: 4,
-      title: "חישוביות וסיבוכיות",
-      image: require("../assets/images/user.png"), // Replace with actual quiz image
-    },
-    {
-      id: 5,
-      title: "לוגיקה 2",
-      image: require("../assets/images/user.png"), // Replace with actual quiz image
-    },
-    // Add more quizzes as needed
-  ];
+  // const quizzes = [
+  //   {
+  //     id: 1,
+  //     title: "אלגוריתמים",
+  //     image: require("../assets/images/user.png"), // Replace with actual quiz image
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "מבנה נתונים",
+  //     image: require("../assets/images/user.png"), // Replace with actual quiz image
+  //   },
+  //   {
+  //     id: 3,
+  //     title: "אנליזה נומרית",
+  //     image: require("../assets/images/user.png"), // Replace with actual quiz image
+  //   },
+  //   {
+  //     id: 4,
+  //     title: "חישוביות וסיבוכיות",
+  //     image: require("../assets/images/user.png"), // Replace with actual quiz image
+  //   },
+  //   {
+  //     id: 5,
+  //     title: "לוגיקה 2",
+  //     image: require("../assets/images/user.png"), // Replace with actual quiz image
+  //   },
+  //   // Add more quizzes as needed
+  // ];
 
   const renderQuizCard = ({ item }) => (
     <TouchableOpacity style={styles.quizCard}>
-      <Image source={item.image} style={styles.quizImage} />
+      <Image
+        source={{ uri: item.image }}
+        style={styles.quizImage}
+        defaultSource={require("../assets/images/user.png")}
+      />
       <Text style={styles.quizTitle}>{item.title}</Text>
     </TouchableOpacity>
   );
 
+  const fetchQuizzes = async () => {
+    const db = getDatabase();
+    try {
+      const quizzesRef = ref(db, "Quizzes");
+      const snapshot = await get(quizzesRef);
+
+      if (snapshot.exists()) {
+        const quizzesData = snapshot.val();
+        const quizzesArray = Object.entries(quizzesData).map(([id, quiz]) => ({
+          id,
+          title: quiz.title,
+          image: quiz.image, // Add the correct property based on your structure
+        }));
+
+        // Update the state with the fetched quizzes
+        setQuizzes(quizzesArray);
+      } else {
+        console.log("No quizzes found.");
+      }
+    } catch (error) {
+      console.error("Error fetching quizzes:", error);
+    }
+  };
+
   const fetchRequestList = async () => {
     const db = getDatabase();
+    console.log("Image URI:", item.imageUri);
+
     try {
       const requestsRef = ref(db, "RequestLecturer/");
       onValue(requestsRef, (snapshot) => {
@@ -226,7 +268,11 @@ const HomeScreen = () => {
         requestList={requestList}
         handleRequest={handleRequest}
       />
-
+      <AddQuizModal
+        isVisible={isAddQuizModalVisible}
+        onRequestClose={toggleAddQuizModal}
+        fetchQuizzes={fetchQuizzes}
+      />
       {renderFloatingActionButton()}
 
       <View style={styles.header}>
@@ -294,7 +340,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color: "#333", // Dark gray text color
-    textAlign: 'right',
+    textAlign: "right",
   },
   profileImageContainer: {
     width: 70,
@@ -314,7 +360,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color: "#333", // Dark gray text color
-    textAlign: 'right',
+    textAlign: "right",
   },
   quizList: {
     flex: 1,
@@ -339,7 +385,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#333", // Dark gray text color
-
   },
   logoutButton: {
     padding: 8,

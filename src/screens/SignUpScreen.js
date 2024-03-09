@@ -17,9 +17,7 @@ import { addDoc, collection, getFirestore } from "firebase/firestore";
 import { getDatabase, ref, set } from "firebase/database";
 import { Alert } from "react-native";
 import Button from "../components/Button";
-import womanImage from "../assets/images/woman.png";
-import manImage from "../assets/images/man.png";
-import otherImage from "../assets/images/other.png";
+
 
 const SignUpScreen = () => {
   const navigation = useNavigation();
