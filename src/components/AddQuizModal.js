@@ -26,10 +26,9 @@ const AddQuizModal = ({
   const [selectedYear, setSelectedYear] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
 
-  const imagePaths = Array.from(
-    { length: 3 },
-    (_, i) => `../assets/images/courses/${i + 1}.png`
-  );
+  // const imagePaths = Array.from({ length: 3 }, (_, i) =>
+  //   require(`../assets/images/courses/${i + 1}.png`)
+  // );
 
   const saveQuiz = async () => {
     try {
@@ -57,18 +56,18 @@ const AddQuizModal = ({
     return imageSource;
   };
 
-  // const quizImages = {
-  //   1: require("../assets/images/courses/ (1).png"),
-  //   2: require("../assets/images/courses/ (2).png"),
-  //   3: require("../assets/images/courses/yarin.png"),
-  //   4: require("../assets/images/signup.png"),
-  //   5: require("../assets/images/courses/ (5).png"),
-  //   6: require("../assets/images/courses/ (6).png"),
-  //   7: require("../assets/images/courses/ (7).png"),
-  //   8: require("../assets/images/courses/ (8).png"),
-  //   9: require("../assets/images/courses/ (9).png"),
-  //   10: require("../assets/images/courses/ (10).png"),
-  // };
+  const quizImages = {
+    1: require("../assets/images/courses/ (1).png"),
+    2: require("../assets/images/courses/ (2).png"),
+    3: require("../assets/images/courses/ (3).png"),
+    4: require("../assets/images/courses/ (4).png"),
+    5: require("../assets/images/courses/ (5).png"),
+    6: require("../assets/images/courses/ (6).png"),
+    7: require("../assets/images/courses/ (7).png"),
+    8: require("../assets/images/courses/ (8).png"),
+    9: require("../assets/images/courses/ (9).png"),
+    10: require("../assets/images/courses/ (10).png"),
+  };
 
   const pickImage = (index) => {
     setSelectedImageIndex(index);
@@ -97,7 +96,7 @@ const AddQuizModal = ({
           {imagePaths.map((index) => (
             <TouchableOpacity key={index} onPress={() => pickImage(index)}>
               <Image
-                source={imagePaths[index]}
+                source={quizImages[index + 1]}
                 style={{ width: 50, height: 50 }}
                 // resizeMode="cover"
               />
