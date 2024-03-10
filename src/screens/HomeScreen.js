@@ -70,7 +70,18 @@ const HomeScreen = () => {
     other: require("../assets/images/other.png"),
   };
 
-
+  const quizImages = {
+    1: require("../assets/courses/(1).png"),
+    2: require("../assets/courses/(2).png"),
+    3: require("../assets/courses/(3).png"),
+    4: require("../assets/courses/(4).png"),
+    5: require("../assets/courses/(5).png"),
+    6: require("../assets/courses/(6).png"),
+    7: require("../assets/courses/(7).png"),
+    8: require("../assets/courses/(8).png"),
+    9: require("../assets/courses/(9).png"),
+    10: require("../assets/courses/(10).png"),
+  };
 
   const fetchUserData = async () => {
     const user = auth.currentUser;
@@ -151,6 +162,7 @@ const HomeScreen = () => {
   };
 
   userEmail = userData.email;
+
   const renderFloatingActionButton = () => {
     if (userData && userData.role !== "S") {
       return (
@@ -169,65 +181,36 @@ const HomeScreen = () => {
     return null;
   };
 
-  useEffect(() => {
-    fetchUserData();
-    fetchQuizzes();
-  }, []);
-
-  // const quizzes = [
-  //   {
-  //     id: 1,
-  //     title: "אלגוריתמים",
-  //     image: require("../assets/images/user.png"), // Replace with actual quiz image
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "מבנה נתונים",
-  //     image: require("../assets/images/user.png"), // Replace with actual quiz image
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "אנליזה נומרית",
-  //     image: require("../assets/images/user.png"), // Replace with actual quiz image
-  //   },
-  //   {
-  //     id: 4,
-  //     title: "חישוביות וסיבוכיות",
-  //     image: require("../assets/images/user.png"), // Replace with actual quiz image
-  //   },
-  //   {
-  //     id: 5,
-  //     title: "לוגיקה 2",
-  //     image: require("../assets/images/user.png"), // Replace with actual quiz image
-  //   },
-  //   // Add more quizzes as needed
-  // ];
-console.log(userEmail)
-  const renderQuizCard = ({ item }) => (
-    <TouchableOpacity style={styles.quizCard}>
-      <Image
-        source={{ uri: item.image }}
-        style={styles.quizImage}
-        defaultSource={require("../assets/images/user.png")}
-      />
-      <Text style={styles.quizTitle}>{item.title}</Text>
-    </TouchableOpacity>
-  );
+  const renderQuizCard = ({ item }) => {
+    if (item.year == userData.year) {
+      return (
+        <TouchableOpacity style={styles.quizCard}>
+          <Image
+            source={quizImages[item.image]}
+            style={styles.quizImage}
+            defaultSource={require("../assets/images/user.png")}
+          />
+          <Text style={styles.quizTitle}>{item.title}</Text>
+        </TouchableOpacity>
+      );
+    } else {
+      return null; // Render nothing if the year doesn't match
+    }
+  };
 
   const fetchQuizzes = async () => {
     const db = getDatabase();
     try {
       const quizzesRef = ref(db, "Quizzes");
       const snapshot = await get(quizzesRef);
-
       if (snapshot.exists()) {
         const quizzesData = snapshot.val();
         const quizzesArray = Object.entries(quizzesData).map(([id, quiz]) => ({
           id,
           title: quiz.title,
-          image: quiz.image, // Add the correct property based on your structure
+          image: quiz.imageIndex,
+          year: quiz.year, // Add the correct property based on your structure
         }));
-
         // Update the state with the fetched quizzes
         setQuizzes(quizzesArray);
       } else {
@@ -264,6 +247,15 @@ console.log(userEmail)
     4: "שנה רביעית",
   };
 
+  useEffect(() => {
+    fetchUserData();
+
+  }, []);
+
+  useEffect(() => {
+    fetchQuizzes();
+  }, [userData]); // Re-run when userData changes
+  
   return (
     <SafeAreaView style={styles.container}>
       <RequestModal

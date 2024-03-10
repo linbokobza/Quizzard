@@ -5,6 +5,7 @@ import {
   View,
   Text,
   TextInput,
+  StyleSheet,
   Button,
   Image,
   ImageBackground,
@@ -24,13 +25,8 @@ const AddQuizModal = ({
 }) => {
   const [quizTitle, setQuizTitle] = useState("");
   const [selectedYear, setSelectedYear] = useState(1);
-  const [selectedImageIndex, setSelectedImageIndex] = useState(null);
-
-  const imagePaths = Array.from(
-    { length: 3 },
-    (_, i) => `../assets/images/courses/(${i + 1}).png`
-  );
-
+  const [IndexselectedImage, setSelectedImageIndex] = useState(null);
+  let selectedImageIndex = 0;
   const saveQuiz = async () => {
     try {
       const db = getDatabase();
@@ -40,7 +36,7 @@ const AddQuizModal = ({
       const quizData = {
         title: quizTitle,
         year: selectedYear,
-        imageUri: imagePaths[selectedImageIndex],
+        imageIndex: IndexselectedImage,
         lecturer: lecturerEmail,
       };
 
@@ -70,21 +66,28 @@ const AddQuizModal = ({
     10: require("../assets/courses/(10).png"),
   };
   const quizImagesArray = Object.entries(quizImages);
+  const imagePaths = Array.from(
+    { length: 10 },
+    (_, i) => `../assets/images/courses/(${i + 1}).png`
+  );
 
   const pickImage = (index) => {
     setSelectedImageIndex(index);
+    selectedImageIndex = index;
   };
 
   return (
     <Modal visible={isVisible} animationType="slide">
-      <View>
-        <Text>הוספת קוויז</Text>
+      <View style={styles.modalContainer}>
+        <Text style={styles.modalTitle}>הוספת קוויז</Text>
         <TextInput
+          style={styles.input}
           placeholder="כותרת הקוויז"
           value={quizTitle}
           onChangeText={(text) => setQuizTitle(text)}
         />
         <Picker
+          style={styles.picker}
           selectedValue={selectedYear}
           onValueChange={(itemValue) => setSelectedYear(itemValue)}
         >
@@ -93,30 +96,106 @@ const AddQuizModal = ({
           <Picker.Item label="שנה 3" value={3} />
           <Picker.Item label="שנה 4" value={4} />
         </Picker>
-        <View>
-          <Text>בחר תמונה:</Text>
-          {quizImagesArray.map((index, value) => (
-            <TouchableOpacity key={index} onPress={() => pickImage(index)}>
+        <Text style={styles.label}>בחר תמונה:</Text>
+        <View style={styles.imageContainer}>
+          {quizImagesArray.map(([index, value]) => (
+            <TouchableOpacity
+              style={styles.imageWrapper}
+              key={index}
+              onPress={() => pickImage(index)}
+            >
               <Image
-                source={value}
-                style={{ width: 50, height: 50 }}
+                source={quizImages[index]}
+                style={styles.image}
                 resizeMode="cover"
               />
             </TouchableOpacity>
           ))}
         </View>
-        {selectedImageIndex !== null && (
-          <Image
-            source={"../assets/images/courses/ (8).png"}
-            style={{ width: 50, height: 50 }}
-          />
-        )}
+        {/* {selectedImageIndex !== null && ( */}
+        <Image
+          source={quizImages[IndexselectedImage]}
+          style={styles.selectedImage}
+        />
+        {/* )} */}
 
-        <Button title="שמור וסגור" onPress={saveQuiz} />
-        <Button title="סגור" onPress={onRequestClose} />
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.button} onPress={saveQuiz}>
+            <Text style={styles.buttonText}>הוסף</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.button} onPress={onRequestClose}>
+            <Text style={styles.buttonText}>סגור</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </Modal>
   );
 };
-
+const styles = StyleSheet.create({
+  modalContainer: {
+    flex: 1,
+    padding: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  input: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    width: "100%",
+  },
+  picker: {
+    height: 40,
+    width: "100%",
+    marginBottom: 10,
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  imageContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  imageWrapper: {
+    width: "20%",
+    padding: 5,
+  },
+  image: {
+    width: 60,
+    height: 60,
+  },
+  selectedImage: {
+    width: 60,
+    height: 60,
+    marginBottom: 10,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 20,
+  },
+  button: {
+    marginHorizontal: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: "#3498db", // You can change the color
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: "#fff", // White text color
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+});
 export default AddQuizModal;
