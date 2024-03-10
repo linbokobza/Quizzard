@@ -26,10 +26,9 @@ const AddQuizModal = ({
   const [selectedYear, setSelectedYear] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
 
-  const numberOfImages = 10; // Adjust this number according to the number of images you have
   const imagePaths = Array.from(
-    { length: 10 },
-    (_, i) => `../assets/images/courses/(${i + 1}).png`
+    { length: 3 },
+    (_, i) => `../assets/images/courses/${i + 1}.png`
   );
 
   const saveQuiz = async () => {
@@ -95,12 +94,12 @@ const AddQuizModal = ({
         </Picker>
         <View>
           <Text>בחר תמונה:</Text>
-          {imagePaths.map((path, index) => (
+          {imagePaths.map((index) => (
             <TouchableOpacity key={index} onPress={() => pickImage(index)}>
               <Image
                 source={imagePaths[index]}
                 style={{ width: 50, height: 50 }}
-                resizeMode="cover"
+                // resizeMode="cover"
               />
             </TouchableOpacity>
           ))}
