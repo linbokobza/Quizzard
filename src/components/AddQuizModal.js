@@ -97,9 +97,8 @@ const AddQuizModal = ({
           <Text>בחר תמונה:</Text>
           {imagePaths.map((path, index) => (
             <TouchableOpacity key={index} onPress={() => pickImage(index)}>
-              {console.log(index)}
               <Image
-                source={quizImages[index + 1]}
+                source={imagePaths[index]}
                 style={{ width: 50, height: 50 }}
                 resizeMode="cover"
               />
