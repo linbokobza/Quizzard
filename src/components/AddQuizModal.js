@@ -58,18 +58,18 @@ const AddQuizModal = ({
     return imageSource;
   };
 
-  const quizImages = {
-    1: require("../assets/images/courses/ (1).png"),
-    2: require("../assets/images/courses/ (2).png"),
-    3: require("../assets/images/signup.png"),
-    4: require("../assets/images/signup.png"),
-    5: require("../assets/images/courses/ (5).png"),
-    6: require("../assets/images/courses/ (6).png"),
-    7: require("../assets/images/courses/ (7).png"),
-    8: require("../assets/images/courses/ (8).png"),
-    9: require("../assets/images/courses/ (9).png"),
-    10: require("../assets/images/courses/ (10).png"),
-  };
+  // const quizImages = {
+  //   1: require("../assets/images/courses/ (1).png"),
+  //   2: require("../assets/images/courses/ (2).png"),
+  //   3: require("../assets/images/courses/yarin.png"),
+  //   4: require("../assets/images/signup.png"),
+  //   5: require("../assets/images/courses/ (5).png"),
+  //   6: require("../assets/images/courses/ (6).png"),
+  //   7: require("../assets/images/courses/ (7).png"),
+  //   8: require("../assets/images/courses/ (8).png"),
+  //   9: require("../assets/images/courses/ (9).png"),
+  //   10: require("../assets/images/courses/ (10).png"),
+  // };
 
   const pickImage = (index) => {
     setSelectedImageIndex(index);
@@ -95,7 +95,7 @@ const AddQuizModal = ({
         </Picker>
         <View>
           <Text>בחר תמונה:</Text>
-          {/* {imagePaths.map((path, index) => (
+          {imagePaths.map((path, index) => (
             <TouchableOpacity key={index} onPress={() => pickImage(index)}>
               {console.log(index)}
               <Image
@@ -104,8 +104,7 @@ const AddQuizModal = ({
                 resizeMode="cover"
               />
             </TouchableOpacity>
-          ))} */}
-          <Image source={quizImages[3]} style={{ width: 50, height: 50 }} />
+          ))}
         </View>
         {selectedImageIndex !== null && (
           <Image
