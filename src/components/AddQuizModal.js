@@ -26,9 +26,10 @@ const AddQuizModal = ({
   const [selectedYear, setSelectedYear] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
 
-  // const imagePaths = Array.from({ length: 3 }, (_, i) =>
-  //   require(`../assets/images/courses/${i + 1}.png`)
-  // );
+  const imagePaths = Array.from(
+    { length: 3 },
+    (_, i) => `../assets/images/courses/(${i + 1}).png`
+  );
 
   const saveQuiz = async () => {
     try {
@@ -57,17 +58,18 @@ const AddQuizModal = ({
   };
 
   const quizImages = {
-    1: require("../assets/images/courses/ (1).png"),
-    2: require("../assets/images/courses/ (2).png"),
-    3: require("../assets/images/courses/ (3).png"),
-    4: require("../assets/images/courses/ (4).png"),
-    5: require("../assets/images/courses/ (5).png"),
-    6: require("../assets/images/courses/ (6).png"),
-    7: require("../assets/images/courses/ (7).png"),
-    8: require("../assets/images/courses/ (8).png"),
-    9: require("../assets/images/courses/ (9).png"),
-    10: require("../assets/images/courses/ (10).png"),
+    1: require("../assets/courses/(1).png"),
+    2: require("../assets/courses/(2).png"),
+    3: require("../assets/courses/(3).png"),
+    4: require("../assets/courses/(4).png"),
+    5: require("../assets/courses/(5).png"),
+    6: require("../assets/courses/(6).png"),
+    7: require("../assets/courses/(7).png"),
+    8: require("../assets/courses/(8).png"),
+    9: require("../assets/courses/(9).png"),
+    10: require("../assets/courses/(10).png"),
   };
+  const quizImagesArray = Object.entries(quizImages);
 
   const pickImage = (index) => {
     setSelectedImageIndex(index);
@@ -93,12 +95,12 @@ const AddQuizModal = ({
         </Picker>
         <View>
           <Text>בחר תמונה:</Text>
-          {imagePaths.map((index) => (
+          {quizImagesArray.map((index, value) => (
             <TouchableOpacity key={index} onPress={() => pickImage(index)}>
               <Image
-                source={quizImages[index + 1]}
+                source={value}
                 style={{ width: 50, height: 50 }}
-                // resizeMode="cover"
+                resizeMode="cover"
               />
             </TouchableOpacity>
           ))}
