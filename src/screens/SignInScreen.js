@@ -61,6 +61,7 @@ const SignInScreen = () => {
             placeholder="הכנס אימייל"
             value={email}
             onChangeText={(value) => setEmail(value)}
+            
           />
           <Text style={styles.formLabel}>סיסמה</Text>
           <TextInput

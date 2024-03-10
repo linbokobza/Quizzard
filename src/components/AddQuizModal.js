@@ -1,16 +1,36 @@
-// AddQuizModal.js
 import React, { useState } from "react";
-import { Modal, View, Text, TextInput, Button, Image } from "react-native";
+import {
+  Modal,
+  TouchableOpacity,
+  View,
+  Text,
+  TextInput,
+  Button,
+  Image,
+  ImageBackground,
+} from "react-native";
 import { getDatabase, ref, push, update } from "firebase/database";
 import { getUnixTime } from "date-fns";
 import * as ImagePicker from "expo-image-picker";
 import { Picker } from "@react-native-picker/picker";
-import { storage } from "../firebase";
+import { storage } from "../firebase"; // Import storage from your firebase module
+import { width } from "deprecated-react-native-prop-types/DeprecatedImagePropType";
 
-const AddQuizModal = ({ isVisible, onRequestClose, fetchQuizzes }) => {
+const AddQuizModal = ({
+  isVisible,
+  onRequestClose,
+  fetchQuizzes,
+  lecturerEmail,
+}) => {
   const [quizTitle, setQuizTitle] = useState("");
   const [selectedYear, setSelectedYear] = useState(1);
-  const [imageUri, setImageUri] = useState(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+
+  const numberOfImages = 10; // Adjust this number according to the number of images you have
+  const imagePaths = Array.from(
+    { length: 10 },
+    (_, i) => `../assets/images/courses/(${i + 1}).png`
+  );
 
   const saveQuiz = async () => {
     try {
@@ -19,11 +39,10 @@ const AddQuizModal = ({ isVisible, onRequestClose, fetchQuizzes }) => {
 
       const newQuizRef = push(quizzesRef);
       const quizData = {
-        id: getUnixTime(new Date()),
         title: quizTitle,
         year: selectedYear,
-        imageUri: imageUri,
-        // Add other quiz-related data here
+        imageUri: imagePaths[selectedImageIndex],
+        lecturer: lecturerEmail,
       };
 
       await update(newQuizRef, quizData);
@@ -34,29 +53,26 @@ const AddQuizModal = ({ isVisible, onRequestClose, fetchQuizzes }) => {
       console.error("Error saving quiz:", error);
     }
   };
+  const getImageSource = (path) => {
+    const imageSource = Image.resolveAssetSource(path);
+    return imageSource;
+  };
 
-  const pickImage = async () => {
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
+  const quizImages = {
+    1: require("../assets/images/courses/ (1).png"),
+    2: require("../assets/images/courses/ (2).png"),
+    3: require("../assets/images/signup.png"),
+    4: require("../assets/images/signup.png"),
+    5: require("../assets/images/courses/ (5).png"),
+    6: require("../assets/images/courses/ (6).png"),
+    7: require("../assets/images/courses/ (7).png"),
+    8: require("../assets/images/courses/ (8).png"),
+    9: require("../assets/images/courses/ (9).png"),
+    10: require("../assets/images/courses/ (10).png"),
+  };
 
-      if (!result.cancelled) {
-        const response = await fetch(result.uri);
-        const blob = await response.blob();
-        const imageName = `${getUnixTime(new Date())}.jpg`;
-        const storageRef = storage.ref().child(`quiz_images/${imageName}`);
-        await storageRef.put(blob);
-
-        const downloadURL = await storageRef.getDownloadURL();
-        setImageUri(downloadURL);
-      }
-    } catch (error) {
-      console.error("Error picking and uploading image:", error);
-    }
+  const pickImage = (index) => {
+    setSelectedImageIndex(index);
   };
 
   return (
@@ -77,13 +93,27 @@ const AddQuizModal = ({ isVisible, onRequestClose, fetchQuizzes }) => {
           <Picker.Item label="שנה 3" value={3} />
           <Picker.Item label="שנה 4" value={4} />
         </Picker>
-        <Button title="בחר תמונה" onPress={pickImage} />
-        {imageUri && (
+        <View>
+          <Text>בחר תמונה:</Text>
+          {/* {imagePaths.map((path, index) => (
+            <TouchableOpacity key={index} onPress={() => pickImage(index)}>
+              {console.log(index)}
+              <Image
+                source={quizImages[index + 1]}
+                style={{ width: 50, height: 50 }}
+                resizeMode="cover"
+              />
+            </TouchableOpacity>
+          ))} */}
+          <Image source={quizImages[3]} style={{ width: 50, height: 50 }} />
+        </View>
+        {selectedImageIndex !== null && (
           <Image
-            source={{ uri: imageUri }}
-            style={{ width: 200, height: 200 }}
+            source={"../assets/images/courses/ (8).png"}
+            style={{ width: 50, height: 50 }}
           />
         )}
+
         <Button title="שמור וסגור" onPress={saveQuiz} />
         <Button title="סגור" onPress={onRequestClose} />
       </View>

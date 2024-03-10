@@ -4,6 +4,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
 import { GoogleAuthProvider } from "firebase/auth";
 import { getStorage } from "firebase/storage";
+import { ref, get } from "firebase/database";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -40,4 +41,4 @@ onAuthStateChanged(auth, (user) => {
     console.log("No user is signed in.");
   }
 });
-export default firebaseConfig;
+export { firebaseConfig, storage };

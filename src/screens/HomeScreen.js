@@ -23,6 +23,7 @@ const HomeScreen = () => {
   const [isDarkOverlayVisible, setIsDarkOverlayVisible] = useState(false);
   const [isAddQuizModalVisible, setAddQuizModalVisible] = useState(false);
   const [quizzes, setQuizzes] = useState([]);
+  let userEmail = null;
 
   const toggleApproveModal = () => {
     setApproveModalVisible(!isApproveModalVisible);
@@ -68,6 +69,8 @@ const HomeScreen = () => {
     male: require("../assets/images/man.png"),
     other: require("../assets/images/other.png"),
   };
+
+
 
   const fetchUserData = async () => {
     const user = auth.currentUser;
@@ -147,6 +150,7 @@ const HomeScreen = () => {
     setIsDarkOverlayVisible(!isDarkOverlayVisible); // Toggle overlay visibility
   };
 
+  userEmail = userData.email;
   const renderFloatingActionButton = () => {
     if (userData && userData.role !== "S") {
       return (
@@ -198,7 +202,7 @@ const HomeScreen = () => {
   //   },
   //   // Add more quizzes as needed
   // ];
-
+console.log(userEmail)
   const renderQuizCard = ({ item }) => (
     <TouchableOpacity style={styles.quizCard}>
       <Image
@@ -272,6 +276,7 @@ const HomeScreen = () => {
         isVisible={isAddQuizModalVisible}
         onRequestClose={toggleAddQuizModal}
         fetchQuizzes={fetchQuizzes}
+        lecturerEmail={userEmail}
       />
       {renderFloatingActionButton()}
 
