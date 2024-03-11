@@ -8,7 +8,6 @@ import {
   StyleSheet,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { themeColors } from "../constants/theme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ArrowLeftIcon } from "react-native-heroicons/solid";
 import { useNavigation } from "@react-navigation/native";
@@ -17,7 +16,7 @@ import { addDoc, collection, getFirestore } from "firebase/firestore";
 import { getDatabase, ref, set } from "firebase/database";
 import { Alert } from "react-native";
 import Button from "../components/Button";
-
+import { COLORS, themeColors } from "../constants/theme";
 
 const SignUpScreen = () => {
   const navigation = useNavigation();
@@ -97,6 +96,7 @@ const SignUpScreen = () => {
         <View style={styles.form}>
           <Text style={styles.formLabel}>שם מלא</Text>
           <TextInput
+            autoCompleteType="name"
             style={styles.input}
             value={fullName}
             onChangeText={(value) => setFullName(value)}
@@ -104,6 +104,7 @@ const SignUpScreen = () => {
           />
           <Text style={styles.formLabel}>אימייל</Text>
           <TextInput
+            autoCompleteType="email"
             style={styles.input}
             value={email}
             onChangeText={(value) => setEmail(value)}
@@ -143,7 +144,7 @@ const SignUpScreen = () => {
           <Button
             title="הרשמה"
             onPress={handleSubmit}
-            buttonStyle={{ backgroundColor: "#F6E05E" }}
+            buttonStyle={{ backgroundColor: COLORS.buttonColor }}
             textStyle={{ color: "#475569" }}
           />
           {errorMessage && (
@@ -165,7 +166,7 @@ const SignUpScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: themeColors.bg,
+    backgroundColor: COLORS.buttonColor,
   },
   safeArea: {
     flexDirection: "row",
@@ -176,19 +177,21 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   backButton: {
-    backgroundColor: "#F6E05E",
+    backgroundColor: COLORS.buttonColor,
     padding: 10,
     borderRadius: 10,
     marginLeft: 4,
   },
   imageContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 16,
   },
   logo: {
-    width: 165,
-    height: 110,
+    width: 400, // Adjust the width as needed
+    height: 150, // Adjust the height as needed
+    resizeMode: "contain",
   },
   formContainer: {
     flex: 1,
@@ -216,7 +219,7 @@ const styles = StyleSheet.create({
   },
   signupButton: {
     padding: 16,
-    backgroundColor: "#F6E05E",
+    backgroundColor: COLORS.buttonColor,
     borderRadius: 10,
     marginHorizontal: 16,
   },
@@ -248,7 +251,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   loginLink: {
-    color: "#F6E05E",
+    color: COLORS.buttonColor,
     fontWeight: "600",
     marginLeft: 4,
   },

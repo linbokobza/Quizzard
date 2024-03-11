@@ -14,6 +14,12 @@ import { getDatabase, update, ref, onValue, get } from "firebase/database";
 import { FloatingAction } from "react-native-floating-action";
 import RequestModal from "../components/RequestModal";
 import AddQuizModal from "../components/AddQuizModal";
+import { COLORS } from "../constants/theme";
+import PointsContainer from "../components/PointsContainer";
+import {
+  height,
+  width,
+} from "deprecated-react-native-prop-types/DeprecatedImagePropType";
 
 const HomeScreen = () => {
   const [userData, setUserData] = useState({});
@@ -249,13 +255,12 @@ const HomeScreen = () => {
 
   useEffect(() => {
     fetchUserData();
-
   }, []);
 
   useEffect(() => {
     fetchQuizzes();
   }, [userData]); // Re-run when userData changes
-  
+
   return (
     <SafeAreaView style={styles.container}>
       <RequestModal
@@ -273,15 +278,6 @@ const HomeScreen = () => {
       {renderFloatingActionButton()}
 
       <View style={styles.header}>
-        <View style={styles.greetingContainer}>
-          <Text style={styles.greetingText}>
-            {loading
-              ? "Loading..."
-              : userData
-              ? `  שלום ${userData.fullName} `
-              : "User data not found"}
-          </Text>
-        </View>
         <View style={styles.profileImageContainer}>
           {userData && userData.profileImage && (
             <Image
@@ -290,11 +286,33 @@ const HomeScreen = () => {
             />
           )}
         </View>
+        <View style={styles.greetingContainer}>
+          <Text style={styles.greetingText}>
+            {loading
+              ? "Loading..."
+              : userData
+              ? `שלום ${userData.fullName}`
+              : "User data not found"}
+          </Text>
+        </View>
+        <View style={styles.iconContainer}>
+          <Image
+            source={require("../assets/images/hi.png")}
+            style={styles.iconContainer}
+          />
+        </View>
       </View>
+
+      <PointsContainer
+        userPoints={userData.points}
+        userRanking={4}
+      ></PointsContainer>
+
       <View style={styles.pointsContainer}>
-        <Text style={styles.pointsText}>נקודות: {userData.points}</Text>
-      </View>
-      <View style={styles.pointsContainer}>
+        <Image
+          source={require("../assets/images/pencil.png")}
+          style={{ width: 25, height: 25, marginRight: 15 }}
+        />
         <Text style={styles.pointsText}>
           אתה נמצא ב{yearDisplay[userData.year]} ללימודיך
         </Text>
@@ -314,7 +332,7 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5", // Light gray background
+    backgroundColor: COLORS.backgroundcolor,
     padding: 16,
   },
   fab: {
@@ -329,16 +347,39 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 16,
   },
+  contentContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   greetingContainer: {
     flex: 1,
     marginRight: 20,
+    justifyContent: "center",
   },
   greetingText: {
-    fontSize: 20,
+    fontSize: 30,
     fontWeight: "bold",
-    color: "#333", // Dark gray text color
+    color: "#333",
+    textAlign: "left",
+    marginLeft: 30,
+  },
+  userName: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
     textAlign: "right",
   },
+  iconContainer: {
+    width: 40,
+    height: 40,
+  },
+  pointsInnerContainer: {
+    backgroundColor: "#EFC5AE", // Set your desired background color
+    borderRadius: 8,
+    padding: 20,
+    alignItems: "flex-start",
+  },
+
   profileImageContainer: {
     width: 70,
     height: 70,
@@ -351,13 +392,16 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   pointsContainer: {
-    marginBottom: 16,
+    flexDirection: "row",
+    alignItems: 'center', 
   },
   pointsText: {
     fontSize: 20,
     fontWeight: "bold",
     color: "#333", // Dark gray text color
-    textAlign: "right",
+    textAlign: "center",
+    paddingTop: 25,
+    paddingBottom: 20,
   },
   quizList: {
     flex: 1,
@@ -368,18 +412,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 12,
     marginBottom: 8,
-    backgroundColor: "#FFFFFF", // White background for quiz cards
-    borderRadius: 8,
+    backgroundColor: "#FFE0B4", // White background for quiz cards
+    borderRadius: 12,
     elevation: 2, // Add elevation for a subtle shadow on Android
   },
   quizImage: {
-    width: 40,
-    height: 40,
+    width: 50,
+    height: 50,
     borderRadius: 20,
     marginRight: 12,
   },
   quizTitle: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#333", // Dark gray text color
   },

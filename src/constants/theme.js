@@ -10,8 +10,10 @@ export const COLORS = {
 
   black: "#171717",
   white: "#FFFFFF",
-  background: "#f4f4f4",
+  backgroundcolor: "#FFF3E4",
+  backgroundImage: require("../assets/background.jpg"),
   border: "#F5F5F7",
+  buttonColor: "#FFE5C3"
 };
 
 export const SIZES = {

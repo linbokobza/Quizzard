@@ -1,7 +1,14 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  ImageBackground,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { themeColors } from "../constants/theme";
+import { COLORS } from "../constants/theme";
 import { useNavigation } from "@react-navigation/native";
 import Button from "../components/Button";
 
@@ -9,36 +16,38 @@ const WelcomeScreen = () => {
   const navigation = useNavigation();
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: themeColors.bg }]}
-    >
-      <View style={styles.contentContainer}>
-
-        <View style={styles.imageContainer}>
-          <Image
-            source={require("../assets/images/signup.png")}
-            style={styles.image}
-          />
-        </View>
-
-        <View style={styles.buttonContainer}>
-          <Button
-            title="הרשמה"
-            onPress={() => navigation.navigate("SignUpScreen")}
-            buttonStyle={{ backgroundColor: "#F6E05E" }}
-            textStyle={{ color: "#475569" }}
-          />
+    <SafeAreaView style={styles.container}>
+      <ImageBackground
+        source={COLORS.backgroundImage}
+        style={styles.backgroundImage}
+      >
+        <View style={styles.contentContainer}>
+          <View style={styles.imageContainer}>
+            <Image
+              source={require("../assets/images/signup.png")}
+              style={styles.image}
+            />
+          </View>
 
           <View style={styles.buttonContainer}>
             <Button
-              title="התחברות"
-              onPress={() => navigation.navigate("SignInScreen")}
-              buttonStyle={{ backgroundColor: "#F6E05E" }}
+              title="הרשמה"
+              onPress={() => navigation.navigate("SignUpScreen")}
+              buttonStyle={{ backgroundColor: COLORS.buttonColor}}
               textStyle={{ color: "#475569" }}
             />
+
+            <View style={styles.buttonContainer}>
+              <Button
+                title="התחברות"
+                onPress={() => navigation.navigate("SignInScreen")}
+                buttonStyle={{ backgroundColor: COLORS.buttonColor}}
+                textStyle={{ color: "#475569" }}
+              />
+            </View>
           </View>
         </View>
-      </View>
+      </ImageBackground>
     </SafeAreaView>
   );
 };
@@ -47,15 +56,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center",
+  },
   contentContainer: {
     flex: 1,
     justifyContent: "space-around",
-  },
-  title: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 24,
-    textAlign: "center",
   },
   imageContainer: {
     flexDirection: "row",
@@ -67,7 +75,6 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginVertical: 16,
-
   },
   button: {
     paddingVertical: 12,

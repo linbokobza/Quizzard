@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ArrowLeftIcon } from "react-native-heroicons/solid";
-import { themeColors } from "../constants/theme";
+import { COLORS, themeColors } from "../constants/theme";
 import { useNavigation } from "@react-navigation/native";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
@@ -61,7 +61,7 @@ const SignInScreen = () => {
             placeholder="הכנס אימייל"
             value={email}
             onChangeText={(value) => setEmail(value)}
-            
+            autoCompleteType="email"
           />
           <Text style={styles.formLabel}>סיסמה</Text>
           <TextInput
@@ -77,7 +77,7 @@ const SignInScreen = () => {
           <Button
             title="התחברות"
             onPress={handleSubmit}
-            buttonStyle={{ backgroundColor: "#F6E05E" }}
+            buttonStyle={{ backgroundColor: COLORS.buttonColor }}
             textStyle={{ color: "#475569" }}
           />
         </View>
@@ -96,7 +96,7 @@ const SignInScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: themeColors.bg,
+    backgroundColor: COLORS.backgroundcolor,
   },
   safeArea: {
     flexDirection: "row",
@@ -107,7 +107,6 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   backButton: {
-    backgroundColor: "#F6E05E",
     padding: 10,
     borderRadius: 10,
     marginLeft: 4,
@@ -155,7 +154,6 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     padding: 16,
-    backgroundColor: "#F6E05E",
     borderRadius: 10,
     marginHorizontal: 16,
   },
@@ -172,21 +170,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 16,
   },
-  socialButtonsContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginVertical: 12,
-  },
-  socialButton: {
-    padding: 10,
-    backgroundColor: "#F3F4F6",
-    borderRadius: 10,
-    marginHorizontal: 8,
-  },
-  socialIcon: {
-    width: 30,
-    height: 30,
-  },
+
   signupContainer: {
     flexDirection: "row",
     justifyContent: "center",
@@ -197,7 +181,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   signupLink: {
-    color: "#F6E05E",
+    color: COLORS.buttonColor,
     fontWeight: "600",
     marginLeft: 4,
   },

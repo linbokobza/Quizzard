@@ -1,18 +1,26 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Image } from "react-native";
 import "react-native-gesture-handler";
 import AuthStackNavigator from "./src/navigators/AuthStackNavigator";
-
+import { COLORS } from "./src/constants/theme";
 export default function App() {
-  return <AuthStackNavigator />;
+  return (
+        <AuthStackNavigator />
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
+    position: "relative",
+  },
+  image: {
+    ...StyleSheet.absoluteFillObject,
+    resizeMode: "cover",
+  },
+  content: {
+    flex: 1,
+    zIndex: 1, // Ensure that the content is layered above the background image
   },
 });

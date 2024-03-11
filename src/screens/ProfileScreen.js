@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { updatePassword } from "firebase/auth";
-
+import { COLORS } from "../constants/theme";
 const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
@@ -297,7 +297,7 @@ const ProfilePage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.backgroundcolor,
     alignItems: "center",
     justifyContent: "center",
   },
