@@ -34,18 +34,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 16,
-    backgroundColor: "#FAB16B", // Background color for the container
+    marginTop:30,
+    backgroundColor: "#FFD9B5", // Background color for the container
     borderRadius: 8,
   },
   leftContainer: {
     flexDirection: "row",
     alignItems: "center",
     paddingRight: 20,
-
   },
   rightContainer: {
     flexDirection: "row",
     alignItems: "center",
+    paddingRight: 20,
+
   },
   image: {
     width: 40,
@@ -59,7 +61,8 @@ const styles = StyleSheet.create({
     color: "#383838",
   },
   divider: {
-    marginHorizontal: 16,
+    marginHorizontal: 8,
+    marginRight: 30,
     fontSize: 24,
     color: "#333",
   },

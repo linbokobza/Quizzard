@@ -15,6 +15,10 @@ import {
 import { Picker } from "@react-native-picker/picker";
 import { updatePassword } from "firebase/auth";
 import { COLORS } from "../constants/theme";
+import ProfileButton from "../components/ProfileButton";
+import ChangePasswordModal from "../components/ChangePasswordModal";
+import EditProfileModal from "../components/EditProfileModal";
+
 const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
@@ -60,6 +64,8 @@ const ProfilePage = () => {
       update(userRef, updatedFields)
         .then(() => {
           console.log("User details updated successfully!");
+          Alert.alert("פרטי המשתמש השתנו בהצלחה 😊");
+
           setEditModalVisible(false); // Close the modal after saving changes
         })
         .catch((error) => {
@@ -78,6 +84,7 @@ const ProfilePage = () => {
 
     if (newPassword !== confirmPassword) {
       console.error("New password and confirmation do not match.");
+      Alert.alert("הסיסמאות לא תואמות, נסה שנית 🔁");
       return;
     }
 
@@ -86,6 +93,8 @@ const ProfilePage = () => {
       await updatePassword(user, newPassword);
 
       console.log("Password updated successfully!");
+      Alert.alert("הסיסמה שונתה בהצלחה 😊");
+
       // Reset all password-related states
       setNewPassword("");
       setConfirmPassword("");
@@ -132,6 +141,7 @@ const ProfilePage = () => {
       console.error("Error logging out:", error);
     }
   };
+
   const handleRequest = async () => {
     const user = auth.currentUser;
     const database = getDatabase();
@@ -139,8 +149,12 @@ const ProfilePage = () => {
 
     try {
       if (userData && userData.role == "L") {
-        Alert.alert("משתמש זה כבר משתמש מרצה");
-        throw new Error("You already a lecturer");
+        Alert.alert("משתמש זה כבר משתמש מרצה 👨‍🏫");
+        return "You already a lecturer";
+      }
+      if (userData && userData.role == "A") {
+        Alert.alert("משתמש זה כבר אדמין 🛡️");
+        return "You already a admin";
       }
       await set(usersRef, {
         fullName: userData.fullName,
@@ -156,137 +170,56 @@ const ProfilePage = () => {
   };
   return (
     <SafeAreaView style={styles.container}>
-      <Modal
-        visible={isEditModalVisible}
-        animationType="slide"
-        transparent={true}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text
-              style={{ paddingBottom: 50, textAlign: "center", fontSize: 24 }}
-            >
-              עריכת פרטי משתמש
-            </Text>
-            <TextInput
-              style={styles.editInput}
-              placeholder="הכנס שם מלא"
-              placeholderTextColor="gray"
-              value={editedFullName}
-              onChangeText={(text) => setEditedFullName(text)}
-            />
+      <EditProfileModal
+        isVisible={isEditModalVisible}
+        toggleModal={toggleEditModal}
+        editedFullName={editedFullName}
+        setEditedFullName={setEditedFullName}
+        editedYear={editedYear}
+        setEditedYear={seteditedYear}
+        saveChanges={saveChanges}
+      />
 
-            <Picker
-              selectedValue={editedYear}
-              onValueChange={(itemValue) => seteditedYear(itemValue)}
-            >
-              <Picker.Item label="שנה א'" value="1" />
-              <Picker.Item label="שנה ב'" value="2" />
-              <Picker.Item label="שנה ג'" value="3" />
-              <Picker.Item label="שנה ד'" value="4" />
-            </Picker>
-            <TouchableOpacity style={styles.saveButton} onPress={saveChanges}>
-              <Text style={styles.saveButtonText}>שמור שינויים</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={toggleEditModal}
-            >
-              <Text style={styles.closeButtonText}>סגור</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal
-        visible={isChangePasswordModalVisible}
-        animationType="slide"
-        transparent={true}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text
-              style={{ paddingBottom: 50, textAlign: "center", fontSize: 24 }}
-            >
-              שינוי סיסמה
-            </Text>
-            <TextInput
-              style={styles.editInput}
-              placeholder="הכנס סיסמה נוכחית"
-              secureTextEntry
-              placeholderTextColor="gray"
-              value={currentPassword}
-              onChangeText={(text) => setCurrentPassword(text)}
-            />
-            <TextInput
-              style={styles.editInput}
-              placeholder="הכנס סיסמה חדשה"
-              secureTextEntry
-              placeholderTextColor="gray"
-              value={newPassword}
-              onChangeText={(text) => setNewPassword(text)}
-            />
-            <TextInput
-              style={styles.editInput}
-              placeholder="אימות סיסמה חדשה"
-              secureTextEntry
-              placeholderTextColor="gray"
-              value={confirmPassword}
-              onChangeText={(text) => setConfirmPassword(text)}
-            />
-            <TouchableOpacity
-              style={styles.saveButton}
-              onPress={savePasswordChange}
-            >
-              <Text style={styles.saveButtonText}>שמור שינויים</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={toggleChangePasswordModal}
-            >
-              <Text style={styles.closeButtonText}>סגירה</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+      <ChangePasswordModal
+        isVisible={isChangePasswordModalVisible}
+        toggleModal={toggleChangePasswordModal}
+        currentPassword={currentPassword}
+        setCurrentPassword={setCurrentPassword}
+        newPassword={newPassword}
+        setNewPassword={setNewPassword}
+        confirmPassword={confirmPassword}
+        setConfirmPassword={setConfirmPassword}
+        savePasswordChange={savePasswordChange}
+      />
 
       {userData && (
         <View style={styles.profileContainer}>
-          <Text style={styles.profileName}>{userData.fullName}</Text>
           <Image
             source={profileImages[userData.profileImage]}
             style={styles.profileImage}
           />
-
-          <View style={styles.optionsContainer}>
-            <View style={styles.optionsRow}>
-              <TouchableOpacity
-                style={[styles.optionButton, { backgroundColor: "#BD89E5" }]}
-                onPress={toggleEditModal}
-              >
-                <Text style={styles.optionText}>שינוי פרטים אישיים</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.optionButton, { backgroundColor: "#71B1E5" }]}
-                onPress={toggleChangePasswordModal}
-              >
-                <Text style={styles.optionText}>שינוי סיסמה</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.optionsRow}>
-              <TouchableOpacity
-                style={[styles.optionButton, { backgroundColor: "#E15662" }]}
-                onPress={handleLogout}
-              >
-                <Text style={styles.optionText}>התנתקות</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.optionButton, { backgroundColor: "#FAC564" }]}
-                onPress={handleRequest}
-              >
-                <Text style={styles.optionText}>הפיכה למרצה</Text>
-              </TouchableOpacity>
-            </View>
+          <Text style={styles.profileName}>{userData.fullName}</Text>
+          <View style={styles.buttoncontainer}>
+            <ProfileButton
+              imageSource={require("../assets/profile/profileuser.png")}
+              buttonText="שינוי פרטים אישיים"
+              onPress={toggleEditModal}
+            />
+            <ProfileButton
+              imageSource={require("../assets/profile/password.png")}
+              buttonText="שינוי סיסמה"
+              onPress={toggleChangePasswordModal}
+            />
+            <ProfileButton
+              imageSource={require("../assets/profile/lecturer.png")}
+              buttonText="הפיכה למרצה"
+              onPress={handleRequest}
+            />
+            <ProfileButton
+              imageSource={require("../assets/profile/logout.png")}
+              buttonText="התנתקות"
+              onPress={handleLogout}
+            />
           </View>
         </View>
       )}
@@ -316,7 +249,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    marginBottom: "20%",
+    marginBottom: "10%",
   },
   optionsContainer: {
     width: "100%",
@@ -340,56 +273,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 22,
   },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,  0,  0,  0.5)", // Semi-transparent background
-  },
-  modalContent: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 10,
-    width: "80%", // Adjust width as needed
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  editInput: {
-    borderColor: "gray",
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingTop: 5,
-    paddingBottom: 5,
-    borderRadius: 5,
-    width: "100%",
-  },
-  saveButton: {
-    backgroundColor: "#007BFF",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-    width: "100%",
-  },
-  saveButtonText: {
-    color: "white",
-    textAlign: "center",
-  },
-  closeButton: {
-    backgroundColor: "#FF4500",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-    width: "100%",
-  },
-  closeButtonText: {
-    color: "white",
-    textAlign: "center",
+
+  buttoncontainer: {
+    alignItems: "flex-end",
+    marginTop: "10%", // Adjust the value as needed
   },
 });
 

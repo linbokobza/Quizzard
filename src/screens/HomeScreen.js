@@ -16,10 +16,7 @@ import RequestModal from "../components/RequestModal";
 import AddQuizModal from "../components/AddQuizModal";
 import { COLORS } from "../constants/theme";
 import PointsContainer from "../components/PointsContainer";
-import {
-  height,
-  width,
-} from "deprecated-react-native-prop-types/DeprecatedImagePropType";
+import DeleteQuizModal from "../components/DeleteQuizModal";
 
 const HomeScreen = () => {
   const [userData, setUserData] = useState({});
@@ -29,7 +26,16 @@ const HomeScreen = () => {
   const [isDarkOverlayVisible, setIsDarkOverlayVisible] = useState(false);
   const [isAddQuizModalVisible, setAddQuizModalVisible] = useState(false);
   const [quizzes, setQuizzes] = useState([]);
+  const [isDeleteQuizModalVisible, setDeleteQuizModalVisible] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   let userEmail = null;
+
+  const toggleDeleteQuizModal = () => {
+    setDeleteQuizModalVisible(!isDeleteQuizModalVisible);
+    setIsDarkOverlayVisible(!isDarkOverlayVisible);
+    setIsModalOpen(true); // Set the modal state to open when opening
+  };
 
   const toggleApproveModal = () => {
     setApproveModalVisible(!isApproveModalVisible);
@@ -157,9 +163,17 @@ const HomeScreen = () => {
       toggleApproveModal();
       fetchRequestList();
     }
+
     if (name === "Add Quiz") {
       toggleAddQuizModal();
       fetchRequestList();
+    }
+
+    if (name === "Delete Quiz") {
+      toggleDeleteQuizModal();
+      fetchRequestList();
+    } else {
+      handleFloatingAction(name);
     }
   };
 
@@ -259,10 +273,17 @@ const HomeScreen = () => {
 
   useEffect(() => {
     fetchQuizzes();
-  }, [userData]); // Re-run when userData changes
+  }, [userData, isModalOpen]);
 
   return (
     <SafeAreaView style={styles.container}>
+      <DeleteQuizModal
+        isVisible={isModalOpen}
+        onRequestClose={() => setIsModalOpen(false)}
+        fetchQuizzes={fetchQuizzes}
+        userEmail={userEmail}
+        isModalOpen={isModalOpen} // Pass isModalOpen to DeleteQuizModal
+      />
       <RequestModal
         isVisible={isApproveModalVisible}
         onRequestClose={toggleApproveModal}
@@ -308,7 +329,7 @@ const HomeScreen = () => {
         userRanking={4}
       ></PointsContainer>
 
-      <View style={styles.pointsContainer}>
+      <View style={styles.yearContainer}>
         <Image
           source={require("../assets/images/pencil.png")}
           style={{ width: 25, height: 25, marginRight: 15 }}
@@ -373,13 +394,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
   },
-  pointsInnerContainer: {
-    backgroundColor: "#EFC5AE", // Set your desired background color
-    borderRadius: 8,
-    padding: 20,
-    alignItems: "flex-start",
-  },
-
   profileImageContainer: {
     width: 70,
     height: 70,
@@ -391,9 +405,10 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  pointsContainer: {
+  yearContainer: {
     flexDirection: "row",
-    alignItems: 'center', 
+    alignItems: "center",
+    marginTop: 5,
   },
   pointsText: {
     fontSize: 20,
@@ -412,7 +427,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 12,
     marginBottom: 8,
-    backgroundColor: "#FFE0B4", // White background for quiz cards
+    backgroundColor: "#FFFDFB", // White background for quiz cards
     borderRadius: 12,
     elevation: 2, // Add elevation for a subtle shadow on Android
   },
@@ -423,8 +438,8 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   quizTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 18,
+    fontWeight: "normal",
     color: "#333", // Dark gray text color
   },
   logoutButton: {
@@ -461,6 +476,17 @@ const styles = StyleSheet.create({
   darkOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(0, 0, 0, 0.6)", // Dark overlay color
+  },
+  deleteButton: {
+    marginLeft: "auto", // Align to the right
+    backgroundColor: "#FF0000", // Red color
+    padding: 8,
+    borderRadius: 10,
+  },
+  deleteButtonText: {
+    color: "white",
+    fontSize: 14,
+    fontWeight: "bold",
   },
 });
 export default HomeScreen;
