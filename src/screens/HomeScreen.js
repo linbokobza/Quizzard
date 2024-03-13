@@ -161,20 +161,21 @@ const HomeScreen = () => {
     setIsDarkOverlayVisible(!isDarkOverlayVisible);
     if (name === "Approve") {
       toggleApproveModal();
-      fetchRequestList();
+      //fetchRequestList();
     }
 
-    if (name === "Add Quiz") {
+    else if (name === "Add Quiz") {
       toggleAddQuizModal();
-      fetchRequestList();
+     // fetchRequestList();
     }
 
-    if (name === "Delete Quiz") {
+    else if (name === "Delete Quiz") {
       toggleDeleteQuizModal();
-      fetchRequestList();
-    } else {
-      handleFloatingAction(name);
-    }
+      //fetchRequestList();
+     }
+    //  else {
+    //   handleFloatingAction(name);
+    //}
   };
 
   const handleFloatingActionPress = () => {
@@ -269,6 +270,8 @@ const HomeScreen = () => {
 
   useEffect(() => {
     fetchUserData();
+    // if (isApproveModalVisible || isAddQuizModalVisible || isDeleteQuizModalVisible) {
+      fetchRequestList();
   }, []);
 
   useEffect(() => {
