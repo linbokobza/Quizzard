@@ -18,7 +18,7 @@ import { COLORS } from "../constants/theme";
 import PointsContainer from "../components/PointsContainer";
 import DeleteQuizModal from "../components/DeleteQuizModal";
 import AddQuestionModal from "../components/AddQuestionModal";
-
+import DeleteQuestionModal from "../components/DeleteQuestionModal";
 const HomeScreen = () => {
   const [userData, setUserData] = useState({});
   const [loading, setLoading] = useState(true);
@@ -30,6 +30,8 @@ const HomeScreen = () => {
   const [isDeleteQuizModalVisible, setDeleteQuizModalVisible] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddQuestionModalVisible, setAddQuestionModalVisible] =
+    useState(false);
+  const [isDeleteQuestionModalVisible, setDeleteQuestionModalVisible] =
     useState(false);
 
   let userEmail = null;
@@ -51,6 +53,11 @@ const HomeScreen = () => {
   const toggleAddQuizModal = () => {
     setAddQuizModalVisible(!isAddQuizModalVisible);
   };
+
+  const toggleDeleteQuestionModal = () => {
+    setDeleteQuestionModalVisible(!isDeleteQuestionModalVisible);
+  };
+
   const handleRequest = async (requestId, status) => {
     try {
       const db = getDatabase();
@@ -150,6 +157,12 @@ const HomeScreen = () => {
       name: "Delete Quiz",
       position: 4,
     },
+    {
+      text: "מחיקת שאלה",
+      icon: require("../assets/images/man.png"),
+      name: "Delete Question",
+      position: 5,
+    },
   ];
 
   const handleFloatingAction = (name) => {
@@ -163,6 +176,8 @@ const HomeScreen = () => {
       toggleDeleteQuizModal();
     } else if (name === "Add Question") {
       toggleAddQuestionModal();
+    } else if (name === "Delete Question") {
+      toggleDeleteQuestionModal();
     }
     //  else {
     //   handleFloatingAction(name);
@@ -301,6 +316,12 @@ const HomeScreen = () => {
       <AddQuestionModal
         isVisible={isAddQuestionModalVisible}
         onRequestClose={toggleAddQuestionModal}
+        fetchQuizzes={fetchQuizzes}
+        userEmail={userEmail}
+      />
+      <DeleteQuestionModal
+        isVisible={isDeleteQuestionModalVisible}
+        onRequestClose={toggleDeleteQuestionModal}
         fetchQuizzes={fetchQuizzes}
         userEmail={userEmail}
       />
