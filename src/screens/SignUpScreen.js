@@ -6,6 +6,8 @@ import {
   Image,
   TextInput,
   StyleSheet,
+  ScrollView,
+  Platform,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -74,6 +76,78 @@ const SignUpScreen = () => {
     }
   };
 
+  const pageFormView = () => {
+    return (
+    <View style={styles.formContainer}>
+      <View style={styles.form}>
+        <Text style={styles.formLabel}>שם מלא</Text>
+        <TextInput
+          autoCompleteType="name"
+          style={styles.input}
+          value={fullName}
+          onChangeText={(value) => setFullName(value)}
+          placeholder="הכנס שם מלא"
+        />
+        <Text style={styles.formLabel}>אימייל</Text>
+        <TextInput
+          autoCompleteType="email"
+          style={styles.input}
+          value={email}
+          onChangeText={(value) => setEmail(value)}
+          placeholder="הכנס אימייל"
+        />
+        <Text style={styles.formLabel}>סיסמה</Text>
+        <TextInput
+          style={styles.input}
+          secureTextEntry
+          value={password}
+          onChangeText={(value) => setPassword(value)}
+          placeholder="הכנס סיסמה"
+        />
+        <Text style={styles.formLabel}>שנת לימוד</Text>
+        <Picker
+          style={styles.input}
+          selectedValue={year}
+          onValueChange={(itemValue) => setYear(itemValue)}
+        >
+          <Picker.Item label="שנה א'" value="1" />
+          <Picker.Item label="שנה ב'" value="2" />
+          <Picker.Item label="שנה ג'" value="3" />
+          <Picker.Item label="שנה ד'" value="4" />
+        </Picker>
+
+        <Text style={styles.formLabel}>מגדר</Text>
+        <Picker
+          style={styles.input}
+          selectedValue={gender}
+          onValueChange={(itemValue) => setGender(itemValue)}
+        >
+          <Picker.Item label="אישה" value="female" />
+          <Picker.Item label="גבר" value="male" />
+          <Picker.Item label="אחר" value="other" />
+        </Picker>
+
+        <Button
+          title="הרשמה"
+          onPress={handleSubmit}
+          buttonStyle={{ backgroundColor: COLORS.buttonColor }}
+          textStyle={{ color: "#475569" }}
+        />
+        {errorMessage && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          </View>
+        )}
+      </View>
+      <View style={styles.loginContainer}>
+        <Text style={styles.loginText}>משתמש קיים?</Text>
+        <TouchableOpacity onPress={() => navigation.navigate("SignInScreen")}>
+          <Text style={styles.loginLink}>התחברות</Text>
+        </TouchableOpacity>
+      </View>
+    </View>)
+  };
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
@@ -92,77 +166,17 @@ const SignUpScreen = () => {
           />
         </View>
       </SafeAreaView>
-      <View style={styles.formContainer}>
-        <View style={styles.form}>
-          <Text style={styles.formLabel}>שם מלא</Text>
-          <TextInput
-            autoCompleteType="name"
-            style={styles.input}
-            value={fullName}
-            onChangeText={(value) => setFullName(value)}
-            placeholder="הכנס שם מלא"
-          />
-          <Text style={styles.formLabel}>אימייל</Text>
-          <TextInput
-            autoCompleteType="email"
-            style={styles.input}
-            value={email}
-            onChangeText={(value) => setEmail(value)}
-            placeholder="הכנס אימייל"
-          />
-          <Text style={styles.formLabel}>סיסמה</Text>
-          <TextInput
-            style={styles.input}
-            secureTextEntry
-            value={password}
-            onChangeText={(value) => setPassword(value)}
-            placeholder="הכנס סיסמה"
-          />
-          <Text style={styles.formLabel}>שנת לימוד</Text>
-          <Picker
-            style={styles.input}
-            selectedValue={year}
-            onValueChange={(itemValue) => setYear(itemValue)}
-          >
-            <Picker.Item label="שנה א'" value="1" />
-            <Picker.Item label="שנה ב'" value="2" />
-            <Picker.Item label="שנה ג'" value="3" />
-            <Picker.Item label="שנה ד'" value="4" />
-          </Picker>
-
-          <Text style={styles.formLabel}>מגדר</Text>
-          <Picker
-            style={styles.input}
-            selectedValue={gender}
-            onValueChange={(itemValue) => setGender(itemValue)}
-          >
-            <Picker.Item label="אישה" value="female" />
-            <Picker.Item label="גבר" value="male" />
-            <Picker.Item label="אחר" value="other" />
-          </Picker>
-
-          <Button
-            title="הרשמה"
-            onPress={handleSubmit}
-            buttonStyle={{ backgroundColor: COLORS.buttonColor }}
-            textStyle={{ color: "#475569" }}
-          />
-          {errorMessage && (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{errorMessage}</Text>
-            </View>
-          )}
-        </View>
-        <View style={styles.loginContainer}>
-          <Text style={styles.loginText}>משתמש קיים?</Text>
-          <TouchableOpacity onPress={() => navigation.navigate("SignInScreen")}>
-            <Text style={styles.loginLink}>התחברות</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
+      {Platform.OS === "ios" ? (
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      {pageFormView()}
+    </ScrollView>
+  ) : (
+    pageFormView()
+  )}
+  </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -17,6 +17,7 @@ import AddQuizModal from "../components/AddQuizModal";
 import { COLORS } from "../constants/theme";
 import PointsContainer from "../components/PointsContainer";
 import DeleteQuizModal from "../components/DeleteQuizModal";
+import AddQuestionModal from "../components/AddQuestionModal";
 
 const HomeScreen = () => {
   const [userData, setUserData] = useState({});
@@ -28,6 +29,8 @@ const HomeScreen = () => {
   const [quizzes, setQuizzes] = useState([]);
   const [isDeleteQuizModalVisible, setDeleteQuizModalVisible] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddQuestionModalVisible, setAddQuestionModalVisible] =
+    useState(false);
 
   let userEmail = null;
 
@@ -41,10 +44,13 @@ const HomeScreen = () => {
     setApproveModalVisible(!isApproveModalVisible);
   };
 
+  const toggleAddQuestionModal = () => {
+    setAddQuestionModalVisible(!isAddQuestionModalVisible);
+  };
+
   const toggleAddQuizModal = () => {
     setAddQuizModalVisible(!isAddQuizModalVisible);
   };
-
   const handleRequest = async (requestId, status) => {
     try {
       const db = getDatabase();
@@ -69,6 +75,7 @@ const HomeScreen = () => {
       } else {
         await update(requestRef, { status: "Declined" });
       }
+      fetchRequestList();
 
       // Close the modal or update the state as needed
     } catch (error) {
@@ -95,41 +102,29 @@ const HomeScreen = () => {
     10: require("../assets/courses/(10).png"),
   };
 
-  const fetchUserData = async () => {
+  const fetchUserData = () => {
     const user = auth.currentUser;
-    const db = getDatabase();
-
     if (user) {
+      const db = getDatabase();
       const userRef = ref(db, `users/${user.uid}`);
 
-      const userDataListener = onValue(
-        userRef,
-        (snapshot) => {
-          const userData = snapshot.val();
-          if (userData) {
-            setUserData(userData);
-            console.log("User data set:", userData);
-          } else {
-            console.log("User data not found for UID:", user.uid);
-          }
-          setLoading(false);
-        },
-        (error) => {
-          console.error("Error fetching user data:", error);
-          setLoading(false);
+      const userDataListener = onValue(userRef, (snapshot) => {
+        const userData = snapshot.val();
+        if (userData) {
+          setUserData(userData);
+          setLoading(false); // Assuming you want to stop showing the loading indicator once the data is fetched
         }
-      );
+      });
 
-      // Clean up the listener when the component unmounts
+      // Cleanup function to detach the listener when the component unmounts
       return () => {
-        off(userRef, userDataListener);
+        userDataListener();
       };
     } else {
       console.log("No user is currently signed in.");
       setLoading(false);
     }
   };
-
   const actions = [
     {
       text: "אשר מרצה",
@@ -161,18 +156,14 @@ const HomeScreen = () => {
     setIsDarkOverlayVisible(!isDarkOverlayVisible);
     if (name === "Approve") {
       toggleApproveModal();
-      //fetchRequestList();
-    }
-
-    else if (name === "Add Quiz") {
+      fetchRequestList();
+    } else if (name === "Add Quiz") {
       toggleAddQuizModal();
-     // fetchRequestList();
-    }
-
-    else if (name === "Delete Quiz") {
+    } else if (name === "Delete Quiz") {
       toggleDeleteQuizModal();
-      //fetchRequestList();
-     }
+    } else if (name === "Add Question") {
+      toggleAddQuestionModal();
+    }
     //  else {
     //   handleFloatingAction(name);
     //}
@@ -244,20 +235,23 @@ const HomeScreen = () => {
 
   const fetchRequestList = async () => {
     const db = getDatabase();
-    console.log("Image URI:", item.imageUri);
 
     try {
       const requestsRef = ref(db, "RequestLecturer/");
-      onValue(requestsRef, (snapshot) => {
+      const snapshot = await get(requestsRef);
+      if (snapshot.exists()) {
         const data = snapshot.val();
         const newRequest = Object.entries(data)
           .filter(([_, request]) => request.status === "waiting")
           .map(([requestId, request]) => ({ ...request, id: requestId }));
         setRequestList(newRequest);
-      });
-      const snapshot = await get(requestsRef);
+      } else {
+        console.log("No requests found.");
+        setRequestList([]); // Set the request list to an empty array if no data is found
+      }
     } catch (error) {
       console.error("Error fetching request list:", error);
+      setRequestList([]); // Set the request list to an empty array in case of error
     }
   };
 
@@ -269,9 +263,14 @@ const HomeScreen = () => {
   };
 
   useEffect(() => {
-    fetchUserData();
-    // if (isApproveModalVisible || isAddQuizModalVisible || isDeleteQuizModalVisible) {
+    const unsubscribe = fetchUserData();
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+
       fetchRequestList();
+    };
   }, []);
 
   useEffect(() => {
@@ -298,6 +297,12 @@ const HomeScreen = () => {
         onRequestClose={toggleAddQuizModal}
         fetchQuizzes={fetchQuizzes}
         lecturerEmail={userEmail}
+      />
+      <AddQuestionModal
+        isVisible={isAddQuestionModalVisible}
+        onRequestClose={toggleAddQuestionModal}
+        fetchQuizzes={fetchQuizzes}
+        userEmail={userEmail}
       />
       {renderFloatingActionButton()}
 

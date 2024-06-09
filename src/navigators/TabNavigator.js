@@ -4,6 +4,7 @@ import HomeScreen from "../screens/HomeScreen"; // Import your existing HomeScre
 import StatisticsScreen from "../screens/StatisticsScreen"; // Import the new StatisticsScreen
 import ProfileScreen from "../screens/ProfileScreen"; // Import the new ProfileScreen
 import Icon from "react-native-vector-icons/Ionicons";
+import QuizScreen from "../screens/QuizScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -26,7 +27,7 @@ const TabNavigator = () => {
         },
       })}
       tabBarOptions={{
-        activeTintColor: "tomato",
+        activeTintColor: "#F7AA53",
         inactiveTintColor: "gray",
       }}
     >
@@ -38,7 +39,7 @@ const TabNavigator = () => {
       <Tab.Screen
         options={{ headerShown: false }}
         name="Statistics"
-        component={StatisticsScreen}
+        component={QuizScreen}
       />
       <Tab.Screen
         options={{ headerShown: false }}

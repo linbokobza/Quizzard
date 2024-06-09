@@ -4,10 +4,12 @@ import { StyleSheet, Text, View, Image } from "react-native";
 import "react-native-gesture-handler";
 import AuthStackNavigator from "./src/navigators/AuthStackNavigator";
 import { COLORS } from "./src/constants/theme";
+import { LogBox } from "react-native";
+
+LogBox.ignoreLogs(["Your log message here"]);
+
 export default function App() {
-  return (
-        <AuthStackNavigator />
-  );
+  return <AuthStackNavigator />;
 }
 
 const styles = StyleSheet.create({

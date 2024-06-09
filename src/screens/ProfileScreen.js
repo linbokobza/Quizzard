@@ -116,6 +116,7 @@ const ProfilePage = () => {
       if (user) {
         const db = getDatabase();
         const userRef = ref(db, `users/${user.uid}`);
+        console.log("User");
 
         const userDataListener = onValue(userRef, (snapshot) => {
           const userData = snapshot.val();

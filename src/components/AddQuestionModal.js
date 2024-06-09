@@ -1,22 +1,19 @@
-// components/DeleteQuizModal.js
+// AddQuestionModal.js
+
 import React, { useState, useEffect } from "react";
 import {
+  Modal,
+  TouchableOpacity,
   View,
   Text,
-  TouchableOpacity,
-  StyleSheet,
   FlatList,
-  Modal,
+  StyleSheet,
 } from "react-native";
-import { getDatabase, ref, get, remove } from "firebase/database";
-import CustomAlert from "./CustomAlert";
+import { getDatabase, ref, get } from "firebase/database";
+import AddQuestionForm from "./AddQuestionForm";
+import { COLORS } from "../constants/theme";
 
-const DeleteQuizModal = ({
-  isVisible,
-  onRequestClose,
-  fetchQuizzes,
-  userEmail,
-}) => {
+const AddQuestionModal = ({ isVisible, onRequestClose, userEmail }) => {
   const [userQuizzes, setUserQuizzes] = useState([]);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
 
@@ -46,64 +43,43 @@ const DeleteQuizModal = ({
     if (userEmail) {
       fetchUserQuizzes();
     }
-  }, [userEmail, fetchQuizzes]); // Include fetchQuizzes as a dependency
+  }, [userEmail]);
 
-  const handleDeleteQuiz = (quizId, quizTitle) => {
-    setSelectedQuiz({ id: quizId, title: quizTitle });
-  };
-
-  const handleConfirmedDelete = async () => {
-    try {
-      const db = getDatabase();
-      const quizRef = ref(db, `Quizzes/${selectedQuiz.id}`);
-      await remove(quizRef);
-      fetchQuizzes();
-      onRequestClose();
-    } catch (error) {
-      console.error("Error deleting quiz:", error);
-    } finally {
-      setSelectedQuiz(null);
-    }
+  const handleSelectQuiz = (quiz) => {
+    setSelectedQuiz(quiz);
   };
 
   const renderQuizItem = ({ item }) => (
     <TouchableOpacity
       style={styles.quizItem}
-      onPress={() => handleDeleteQuiz(item.id, item.title)}
+      onPress={() => handleSelectQuiz(item)}
     >
       <Text>{item.title}</Text>
     </TouchableOpacity>
   );
 
   return (
-    <Modal
-      visible={isVisible}
-      transparent
-      animationType="slide"
-      onRequestClose={onRequestClose}
-    >
+    <Modal visible={isVisible} transparent animationType="slide">
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>בחר קוויז למחיקה:</Text>
+          <Text style={styles.modalTitle}>בחר קורס להוספת שאלה:</Text>
           <FlatList
             data={userQuizzes}
             keyExtractor={(item) => item.id.toString()}
             renderItem={renderQuizItem}
           />
-          {selectedQuiz && (
-            <CustomAlert
-              isVisible={true}
-              onRequestClose={() => setSelectedQuiz(null)}
-              title="מחיקת קוויז"
-              message={`האם אתה בטוח שברצונך למחוק את הקוויז  "${selectedQuiz.title}"?`}
-              onConfirm={handleConfirmedDelete}
-            />
-          )}
           <TouchableOpacity style={styles.closeButton} onPress={onRequestClose}>
             <Text style={styles.closeButtonText}>סגור</Text>
           </TouchableOpacity>
         </View>
       </View>
+      {selectedQuiz && (
+        <AddQuestionForm
+          isVisible={true}
+          onRequestClose={() => setSelectedQuiz(null)}
+          quizId={selectedQuiz.id}
+        />
+      )}
     </Modal>
   );
 };
@@ -111,8 +87,8 @@ const DeleteQuizModal = ({
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    textAlign: "right",
     justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
@@ -120,18 +96,16 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     width: "80%",
-    alignSelf: "center",
+    maxHeight: "80%",
   },
   modalTitle: {
     fontSize: 24,
-    textAlign: "right",
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 10,
   },
   quizItem: {
     padding: 10,
-    textAlign: "right",
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
   },
@@ -148,4 +122,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DeleteQuizModal;
+export default AddQuestionModal;

@@ -21,14 +21,14 @@ const CustomAlert = ({
           <Text style={styles.modalTitle}>{title}</Text>
           <Text style={styles.modalMessage}>{message}</Text>
           <View style={styles.buttonsContainer}>
-            <TouchableOpacity style={styles.confirmButton} onPress={onConfirm}>
-              <Text style={styles.buttonText}>אישור</Text>
-            </TouchableOpacity>
             <TouchableOpacity
               style={styles.cancelButton}
               onPress={onRequestClose}
             >
               <Text style={styles.buttonText}>ביטול</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.confirmButton} onPress={onConfirm}>
+              <Text style={styles.buttonText}>אישור</Text>
             </TouchableOpacity>
           </View>
         </View>

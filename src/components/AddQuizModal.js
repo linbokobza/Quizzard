@@ -9,7 +9,11 @@ import {
   Button,
   Image,
   ImageBackground,
+  ActionSheetIOS,
+  Platform,
 } from "react-native";
+import { COLORS } from "../constants/theme";
+
 import { getDatabase, ref, push, update } from "firebase/database";
 import { getUnixTime } from "date-fns";
 import * as ImagePicker from "expo-image-picker";
@@ -26,7 +30,7 @@ const AddQuizModal = ({
   const [quizTitle, setQuizTitle] = useState("");
   const [selectedYear, setSelectedYear] = useState(1);
   const [IndexselectedImage, setSelectedImageIndex] = useState(null);
-  let selectedImageIndex = 0;
+
   const saveQuiz = async () => {
     try {
       const db = getDatabase();
@@ -48,10 +52,6 @@ const AddQuizModal = ({
       console.error("Error saving quiz:", error);
     }
   };
-  const getImageSource = (path) => {
-    const imageSource = Image.resolveAssetSource(path);
-    return imageSource;
-  };
 
   const quizImages = {
     1: require("../assets/courses/(1).png"),
@@ -66,14 +66,40 @@ const AddQuizModal = ({
     10: require("../assets/courses/(10).png"),
   };
   const quizImagesArray = Object.entries(quizImages);
-  const imagePaths = Array.from(
-    { length: 10 },
-    (_, i) => `../assets/images/courses/(${i + 1}).png`
-  );
 
   const pickImage = (index) => {
     setSelectedImageIndex(index);
-    selectedImageIndex = index;
+  };
+
+  const showYearPicker = () => {
+    return (
+      <Picker
+        style={styles.picker}
+        selectedValue={selectedYear}
+        onValueChange={(itemValue) => setSelectedYear(itemValue)}
+      >
+        <Picker.Item label="שנה 1" value={1} />
+        <Picker.Item label="שנה 2" value={2} />
+        <Picker.Item label="שנה 3" value={3} />
+        <Picker.Item label="שנה 4" value={4} />
+      </Picker>
+    );
+  };
+
+  const showYearActionSheet = () => {
+    const options = ["שנה 1", "שנה 2", "שנה 3", "שנה 4", "בטל"];
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        options: options,
+        cancelButtonIndex: options.length - 1,
+        title: "בחר שנה",
+      },
+      (buttonIndex) => {
+        if (buttonIndex !== options.length - 1) {
+          setSelectedYear(buttonIndex + 1);
+        }
+      }
+    );
   };
 
   return (
@@ -86,16 +112,20 @@ const AddQuizModal = ({
           value={quizTitle}
           onChangeText={(text) => setQuizTitle(text)}
         />
-        <Picker
-          style={styles.picker}
-          selectedValue={selectedYear}
-          onValueChange={(itemValue) => setSelectedYear(itemValue)}
-        >
-          <Picker.Item label="שנה 1" value={1} />
-          <Picker.Item label="שנה 2" value={2} />
-          <Picker.Item label="שנה 3" value={3} />
-          <Picker.Item label="שנה 4" value={4} />
-        </Picker>
+        {Platform.OS === "ios" ? (
+          <TouchableOpacity
+            style={styles.iosPickerButton}
+            onPress={showYearActionSheet}
+          >
+            <Text>{`שנה ${selectedYear}`}</Text>
+            <Image
+              source={require("../assets/images/dropdown.png")}
+              style={styles.dropdownIcon}
+            />
+          </TouchableOpacity>
+        ) : (
+          showYearPicker()
+        )}
         <Text style={styles.label}>בחר תמונה:</Text>
         <View style={styles.imageContainer}>
           {quizImagesArray.map(([index, value]) => (
@@ -112,18 +142,14 @@ const AddQuizModal = ({
             </TouchableOpacity>
           ))}
         </View>
-        {/* {selectedImageIndex !== null && ( */}
         <Image
           source={quizImages[IndexselectedImage]}
           style={styles.selectedImage}
         />
-        {/* )} */}
-
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={saveQuiz}>
             <Text style={styles.buttonText}>הוסף</Text>
           </TouchableOpacity>
-
           <TouchableOpacity style={styles.button} onPress={onRequestClose}>
             <Text style={styles.buttonText}>סגור</Text>
           </TouchableOpacity>
@@ -138,6 +164,7 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: COLORS.backgroundcolor,
   },
   modalTitle: {
     fontSize: 20,
@@ -156,6 +183,19 @@ const styles = StyleSheet.create({
     height: 40,
     width: "100%",
     marginBottom: 10,
+  },
+  iosPickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 50,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+  },
+  dropdownIcon: {
+    width: 15,
+    height: 15,
+    marginLeft: 10,
   },
   label: {
     fontSize: 16,
