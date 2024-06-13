@@ -8,6 +8,7 @@ import SignInScreen from "../screens/SignInScreen";
 import SignUpScreen from "../screens/SignUpScreen";
 import useAuth from "../hooks/useAuth";
 import TabNavigator from "./TabNavigator";
+import QuizScreen from "../screens/QuizScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -17,12 +18,18 @@ export default function AppNavigation() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName={user ? "Home" : "Welcome"}>
         {user ? (
+          <>
           <Stack.Screen
             name="Home"
             options={{ headerShown: false }}
             component={TabNavigator}
-
           />
+          <Stack.Screen
+            name="QuizScreen"
+            options={{ headerShown: false }}
+            component={QuizScreen}
+          />
+        </>
         ) : (
           <>
             <Stack.Screen
@@ -40,6 +47,7 @@ export default function AppNavigation() {
               options={{ headerShown: false }}
               component={SignUpScreen}
             />
+            
           </>
         )}
       </Stack.Navigator>

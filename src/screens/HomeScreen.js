@@ -19,7 +19,8 @@ import PointsContainer from "../components/PointsContainer";
 import DeleteQuizModal from "../components/DeleteQuizModal";
 import AddQuestionModal from "../components/AddQuestionModal";
 import DeleteQuestionModal from "../components/DeleteQuestionModal";
-const HomeScreen = () => {
+
+const HomeScreen = ({ navigation }) => {
   const [userData, setUserData] = useState({});
   const [loading, setLoading] = useState(true);
   const [requestList, setRequestList] = useState([]);
@@ -35,6 +36,7 @@ const HomeScreen = () => {
     useState(false);
 
   let userEmail = null;
+  //const navigation = useNavigation();
 
   const toggleDeleteQuizModal = () => {
     setDeleteQuizModalVisible(!isDeleteQuizModalVisible);
@@ -211,7 +213,10 @@ const HomeScreen = () => {
   const renderQuizCard = ({ item }) => {
     if (item.year == userData.year) {
       return (
-        <TouchableOpacity style={styles.quizCard}>
+        <TouchableOpacity
+          style={styles.quizCard}
+          onPress={() => navigation.navigate("QuizScreen", {quizId: item.id})}
+        >
           <Image
             source={quizImages[item.image]}
             style={styles.quizImage}
@@ -221,7 +226,7 @@ const HomeScreen = () => {
         </TouchableOpacity>
       );
     } else {
-      return null; // Render nothing if the year doesn't match
+      return null;
     }
   };
 
