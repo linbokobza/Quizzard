@@ -5,6 +5,7 @@ import StatisticsScreen from "../screens/StatisticsScreen"; // Import the new St
 import ProfileScreen from "../screens/ProfileScreen"; // Import the new ProfileScreen
 import Icon from "react-native-vector-icons/Ionicons";
 import QuizScreen from "../screens/QuizScreen";
+import { auth } from "../firebase";
 
 const Tab = createBottomTabNavigator();
 
@@ -39,6 +40,7 @@ const TabNavigator = () => {
       <Tab.Screen
         options={{ headerShown: false }}
         name="Statistics"
+        initialParams={{ userId: auth.currentUser.uid }}
         component={StatisticsScreen}
       />
       <Tab.Screen

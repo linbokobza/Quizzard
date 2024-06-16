@@ -34,7 +34,6 @@ const HomeScreen = ({ navigation }) => {
     useState(false);
   const [isDeleteQuestionModalVisible, setDeleteQuestionModalVisible] =
     useState(false);
-  let userIDPass = null;
   let userEmail = null;
   //const navigation = useNavigation();
 
@@ -220,6 +219,7 @@ const HomeScreen = ({ navigation }) => {
             navigation.navigate("QuizScreen", {
               quizId: item.id,
               userId: auth.currentUser.uid,
+              quizName:item.title,
             })
           }
         >

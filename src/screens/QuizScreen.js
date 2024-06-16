@@ -15,11 +15,11 @@ import {
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { COLORS } from "../constants/theme";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { getDatabase, ref, get, update } from "firebase/database";
+import { getDatabase, ref, get, update, set } from "firebase/database";
 
 const QuizScreen = ({ navigation }) => {
   const route = useRoute();
-  const { quizId, userId } = route.params;
+  const { quizId, userId, quizName } = route.params;
 
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -192,7 +192,40 @@ const QuizScreen = ({ navigation }) => {
     );
   };
 
+  const updateQuizStatistics = async () => {
+    try {
+      const quizStatsRef = `users/${userId}/quizStatistics/${quizName}`;
+      const userRef = ref(db, quizStatsRef);
+      const userSnapshot = await get(userRef);
+
+      if (userSnapshot.exists()) {
+        const userData = userSnapshot.val();
+        const currentAverageScore = userData.averageScore || 0;
+        const currentNumberOfAttempts = userData.numberOfAttempts || 0;
+
+        const newAverageScore =
+          (currentAverageScore * currentNumberOfAttempts + score) /
+          (currentNumberOfAttempts + 1);
+
+        await update(userRef, {
+          averageScore: newAverageScore,
+          numberOfAttempts: currentNumberOfAttempts + 1,
+        });
+      } else {
+        await set(ref(db, quizStatsRef), {
+          quizName: quizName,
+          averageScore: score,
+          numberOfAttempts: 1,
+        });
+      }
+    } catch (error) {
+      console.error("Error updating quiz statistics: ", error);
+      throw error;
+    }
+  };
+
   const updateScore = async (Flag) => {
+    await updateQuizStatistics();
     try {
       const userRef = ref(db, `users/${userId}`);
       const userSnapshot = await get(userRef);
@@ -201,7 +234,6 @@ const QuizScreen = ({ navigation }) => {
         const userData = userSnapshot.val();
         let currentPoints = userData.points || 0;
         const updatedPoints = currentPoints + score;
-
         await update(userRef, { points: updatedPoints });
       } else {
         console.log("User not found.");

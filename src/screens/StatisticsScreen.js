@@ -1,84 +1,101 @@
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  Modal,
+  SafeAreaView,
   FlatList,
-  TouchableOpacity,
-  Alert,
-  TextInput,
+  ActivityIndicator,
 } from "react-native";
-import { FloatingAction } from "react-native-floating-action";
-import React, { useState, useEffect } from "react";
-import { getDatabase, ref, get, onValue, update } from "firebase/database";
-import { auth } from "../firebase"; // Assuming you have a firebase.js file where you initialize Firebase
+import { getDatabase, ref, onValue } from "firebase/database";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
 const StatisticsScreen = () => {
+  const route = useRoute();
+  const { userId } = route.params;
+  const [quizStatistics, setQuizStatistics] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const db = getDatabase();
+  useEffect(() => {
+    const fetchQuizStatistics = async () => {
+      try {
+        const userStatsRef = ref(db, `users/${userId}/quizStatistics`);
+        console.log("User stats ref:", userStatsRef.toString()); // Log reference to ensure it matches expected path
+        onValue(userStatsRef, (snapshot) => {
+          const data = snapshot.val();
+          console.log("Fetched quiz statistics:", data); // Log fetched data
+          if (data) {
+            const quizStatsArray = Object.entries(data).map(
+              ([quizName, stats]) => ({
+                quizName,
+                averageScore: stats.averageScore.toFixed(2), // Display averageScore with 2 decimal places
+                numberOfAttempts: stats.numberOfAttempts,
+              })
+            );
+            setQuizStatistics(quizStatsArray);
+          } else {
+            setQuizStatistics([]); // Handle case where data is empty
+          }
+          setLoading(false);
+        });
+      } catch (error) {
+        console.error("Error fetching quiz statistics: ", error); // Log error
+        setLoading(false);
+      }
+    };
 
+    fetchQuizStatistics();
+  }, [db, userId]);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </SafeAreaView>
+    );
+  }
 
   return (
-    <View style={styles.container}>
-      <Text>Statistics Screen</Text>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <FlatList
+        data={quizStatistics}
+        keyExtractor={(item) => item.quizName}
+        renderItem={({ item }) => (
+          <View style={styles.quizContainer}>
+            <Text style={styles.quizName}>{item.quizName}</Text>
+            <Text>Average Score: {item.averageScore}</Text>
+            <Text>Number of Attempts: {item.numberOfAttempts}</Text>
+          </View>
+        )}
+      />
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    marginTop: 60,
+    paddingHorizontal: 16,
   },
-  closeButtonText: {
-    color: "white",
-    textAlign: "center",
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,  0,  0,  0.5)", // Semi-transparent background
-  },
-  modalContent: {
-    backgroundColor: "white",
-    padding: 20,
+  quizContainer: {
+    backgroundColor: "#fff",
     borderRadius: 10,
-    width: "80%", // Adjust width as needed
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
-  modalTitle: {
-    fontSize: 24,
+  quizName: {
+    fontSize: 18,
     fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  editInput: {
-    borderColor: "gray",
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingTop: 5,
-    paddingBottom: 5,
-    borderRadius: 5,
-    width: "100%",
-  },
-  saveButton: {
-    backgroundColor: "#007BFF",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-    width: "100%",
-  },
-  saveButtonText: {
-    color: "white",
-    textAlign: "center",
-  },
-  closeButton: {
-    backgroundColor: "#FF4500",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-    width: "100%",
+    marginBottom: 8,
   },
 });
 
