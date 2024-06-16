@@ -11,6 +11,7 @@ export const COLORS = {
   backgroundImage: require("../assets/background.jpg"),
   border: "#F5F5F7",
   buttonColor: "#FFE5C3",
+  gray:  "#737373",
 
   primary: "#FFF3E4",
   secondary:"#ec8944",

@@ -39,7 +39,7 @@ const TabNavigator = () => {
       <Tab.Screen
         options={{ headerShown: false }}
         name="Statistics"
-        component={QuizScreen}
+        component={StatisticsScreen}
       />
       <Tab.Screen
         options={{ headerShown: false }}

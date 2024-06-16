@@ -15,11 +15,11 @@ import {
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { COLORS } from "../constants/theme";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { getDatabase, ref, get } from "firebase/database";
+import { getDatabase, ref, get, update } from "firebase/database";
 
 const QuizScreen = ({ navigation }) => {
   const route = useRoute();
-  const { quizId } = route.params;
+  const { quizId, userId } = route.params;
 
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,7 +40,6 @@ const QuizScreen = ({ navigation }) => {
     "text-4xl font-bold text-zinc-900 dark:text-zinc-100";
   const borderClasses = "border-t border-zinc-300 dark:border-zinc-600";
   const smallTextClasses = "text-zinc-600 dark:text-zinc-400";
-
   useEffect(() => {
     const fetchQuestions = async () => {
       const quizRef = ref(db, `Quizzes/${quizId}`);
@@ -63,7 +62,16 @@ const QuizScreen = ({ navigation }) => {
                   correct_option: question.correctAnswer,
                 })
               );
-              setQuestions(formattedQuestions);
+
+              // Randomly shuffle the questions
+              const shuffledQuestions = formattedQuestions.sort(
+                () => Math.random() - 0.5
+              );
+
+              // Limit the number of questions (e.g., to 10)
+              const limitedQuestions = shuffledQuestions.slice(0, 3);
+
+              setQuestions(limitedQuestions);
             } else {
               setQuestions([]); // Set questions to an empty array
             }
@@ -110,7 +118,8 @@ const QuizScreen = ({ navigation }) => {
     }).start();
   };
 
-  const restartQuiz = () => {
+  const restartQuiz = async () => {
+    updateScore("restart");
     setShowScoreModal(false);
     setCurrentQuestionIndex(0);
     setScore(0);
@@ -181,6 +190,26 @@ const QuizScreen = ({ navigation }) => {
         ))}
       </View>
     );
+  };
+
+  const updateScore = async (Flag) => {
+    try {
+      const userRef = ref(db, `users/${userId}`);
+      const userSnapshot = await get(userRef);
+
+      if (userSnapshot.exists()) {
+        const userData = userSnapshot.val();
+        let currentPoints = userData.points || 0;
+        const updatedPoints = currentPoints + score;
+
+        await update(userRef, { points: updatedPoints });
+      } else {
+        console.log("User not found.");
+      }
+    } catch (error) {
+      console.error("Error updating user points: ", error);
+    }
+    if (Flag != "restart") navigation.navigate("Home");
   };
 
   const renderNextButton = () => {
@@ -256,30 +285,37 @@ const QuizScreen = ({ navigation }) => {
             <View style={styles.modalContainer}>
               <View style={styles.card}>
                 <Text
-                  style={[styles.text, { fontSize: 18, fontWeight: "600" }]}
+                  style={[styles.text, { fontSize: 20, fontWeight: "600" }]}
                 >
                   כל הכבוד! הצלחת לענות נכון על
                 </Text>
-                <Text style={styles.largeText}>{score} / {questions.length}</Text>
+                <Text style={styles.largeText}>
+                  {score} / {questions.length}
+                </Text>
                 <View style={styles.border}></View>
-                <Text style={styles.smallText}>You earned the badge</Text>
+                <Text style={styles.spacer}>
+                  -----------------------------------------
+                </Text>
+                <Text style={styles.smallText}>צברת {score} נקודות! </Text>
                 <Image
                   source={require("../assets/medals/trophy.png")}
                   style={styles.image}
                   resizeMode="contain"
                 />
-              </View>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>
-                  {score > questions.length / 2 ? "Congratulations!" : "Oops!"}
-                </Text>
-
-                <TouchableOpacity
-                  onPress={() => navigation.navigate("Home")}
-                  style={styles.retryButton}
-                >
-                  <Text style={styles.retryButtonText}>Retry Quiz</Text>
-                </TouchableOpacity>
+                <View style={styles.finalResult}>
+                  <TouchableOpacity
+                    onPress={restartQuiz}
+                    style={styles.GoBackButton}
+                  >
+                    <Text style={styles.retryButtonText}>נסה שנית</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={updateScore}
+                    style={styles.GoBackButton}
+                  >
+                    <Text style={styles.retryButtonText}>דף בית</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           </Modal>
@@ -439,11 +475,7 @@ const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 20,
   },
-  retryButtonText: {
-    textAlign: "center",
-    color: COLORS.white,
-    fontSize: 20,
-  },
+
   trophyImage: {
     width: 150,
     height: 150,
@@ -483,13 +515,33 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   smallText: {
+    color: COLORS.black,
+    marginBottom: 10,
+    fontSize: 18,
+  },
+  spacer: {
     color: COLORS.gray,
-    marginBottom: 8,
+    fontSize: 13,
+    marginBottom: 12,
   },
   image: {
     width: 100,
     height: 100,
     marginTop: 16,
+  },
+  finalResult: {
+    flexDirection: "row",
+    marginVertical: 10,
+    alignItems: "center",
+  },
+  GoBackButton: {
+    alignItems: "center",
+    paddingVertical: 25,
+    marginHorizontal: 20,
+  },
+  retryButtonText: {
+    color: COLORS.black,
+    fontSize: 18,
   },
 });
 

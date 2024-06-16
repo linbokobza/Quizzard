@@ -34,7 +34,7 @@ const HomeScreen = ({ navigation }) => {
     useState(false);
   const [isDeleteQuestionModalVisible, setDeleteQuestionModalVisible] =
     useState(false);
-
+  let userIDPass = null;
   let userEmail = null;
   //const navigation = useNavigation();
 
@@ -59,7 +59,6 @@ const HomeScreen = ({ navigation }) => {
   const toggleDeleteQuestionModal = () => {
     setDeleteQuestionModalVisible(!isDeleteQuestionModalVisible);
   };
-
   const handleRequest = async (requestId, status) => {
     try {
       const db = getDatabase();
@@ -77,6 +76,7 @@ const HomeScreen = ({ navigation }) => {
       );
 
       const [userId, userData] = userEntry;
+      //userIDPass = userEmail;
 
       if (status === "true") {
         await update(requestRef, { status: "Approved" });
@@ -113,6 +113,7 @@ const HomeScreen = ({ navigation }) => {
 
   const fetchUserData = () => {
     const user = auth.currentUser;
+    userIDPass = user.uid;
     if (user) {
       const db = getDatabase();
       const userRef = ref(db, `users/${user.uid}`);
@@ -215,7 +216,12 @@ const HomeScreen = ({ navigation }) => {
       return (
         <TouchableOpacity
           style={styles.quizCard}
-          onPress={() => navigation.navigate("QuizScreen", {quizId: item.id})}
+          onPress={() =>
+            navigation.navigate("QuizScreen", {
+              quizId: item.id,
+              userId: auth.currentUser.uid,
+            })
+          }
         >
           <Image
             source={quizImages[item.image]}
