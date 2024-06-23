@@ -19,6 +19,8 @@ import PointsContainer from "../components/PointsContainer";
 import DeleteQuizModal from "../components/DeleteQuizModal";
 import AddQuestionModal from "../components/AddQuestionModal";
 import DeleteQuestionModal from "../components/DeleteQuestionModal";
+import { useFonts } from "expo-font";
+import * as Font from "expo-font";
 
 const HomeScreen = ({ navigation }) => {
   const [userData, setUserData] = useState({});
@@ -35,7 +37,10 @@ const HomeScreen = ({ navigation }) => {
   const [isDeleteQuestionModalVisible, setDeleteQuestionModalVisible] =
     useState(false);
   let userEmail = null;
-  //const navigation = useNavigation();
+  let x = 6;
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  //navigation.navigate("Statistics", { userId:auth.currentUser.uid,role: userData.role });
 
   const toggleDeleteQuizModal = () => {
     setDeleteQuizModalVisible(!isDeleteQuizModalVisible);
@@ -58,6 +63,7 @@ const HomeScreen = ({ navigation }) => {
   const toggleDeleteQuestionModal = () => {
     setDeleteQuestionModalVisible(!isDeleteQuestionModalVisible);
   };
+
   const handleRequest = async (requestId, status) => {
     try {
       const db = getDatabase();
@@ -75,7 +81,6 @@ const HomeScreen = ({ navigation }) => {
       );
 
       const [userId, userData] = userEntry;
-      //userIDPass = userEmail;
 
       if (status === "true") {
         await update(requestRef, { status: "Approved" });
@@ -84,8 +89,6 @@ const HomeScreen = ({ navigation }) => {
         await update(requestRef, { status: "Declined" });
       }
       fetchRequestList();
-
-      // Close the modal or update the state as needed
     } catch (error) {
       console.error("Error approving request:", error);
     }
@@ -219,7 +222,7 @@ const HomeScreen = ({ navigation }) => {
             navigation.navigate("QuizScreen", {
               quizId: item.id,
               userId: auth.currentUser.uid,
-              quizName:item.title,
+              quizName: item.title,
             })
           }
         >
@@ -297,6 +300,15 @@ const HomeScreen = ({ navigation }) => {
 
       fetchRequestList();
     };
+
+    const loadFonts = async () => {
+      await Font.loadAsync({
+        Fredoka: require("../assets/fonts/Fredoka-VariableFont_wdth,wght.ttf"),
+      });
+      setFontsLoaded(true);
+    };
+
+    loadFonts();
   }, []);
 
   useEffect(() => {
@@ -418,6 +430,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   greetingText: {
+    fontFamily: "Fredoka-VariableFont_wdth,wght",
     fontSize: 30,
     fontWeight: "bold",
     color: "#333",

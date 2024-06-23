@@ -2,6 +2,21 @@ import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 
 const PointsContainer = ({ userPoints, userRanking }) => {
+  if (userPoints < 100) {
+    userRanking = 4;
+  } else if (userPoints > 100 && userPoints <= 200) {
+    userRanking = 3;
+  } else if (userPoints > 200 && userPoints <= 300) {
+    userRanking = 2;
+  } else if (userPoints > 300) {
+    userRanking = 1;
+  }
+  const medalImages = {
+    1: require("../assets/medals/1.png"),
+    2: require("../assets/medals/2.png"),
+    3: require("../assets/medals/3.png"),
+    4: require("../assets/medals/4.png"),
+  };
   return (
     <View style={styles.container}>
       {/* Left side - Image with user points */}
@@ -18,10 +33,7 @@ const PointsContainer = ({ userPoints, userRanking }) => {
 
       {/* Right side - Image with ranking */}
       <View style={styles.rightContainer}>
-        <Image
-          source={require("../assets/medals/1.png")}
-          style={styles.image}
-        />
+        <Image source={medalImages[userRanking]} style={styles.image} />
         <Text style={styles.text}>Rank {userRanking}</Text>
       </View>
     </View>
@@ -34,7 +46,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 16,
-    marginTop:30,
+    marginTop: 30,
     backgroundColor: "#FFD9B5", // Background color for the container
     borderRadius: 8,
   },
@@ -47,7 +59,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingRight: 20,
-
   },
   image: {
     width: 40,
