@@ -26,8 +26,16 @@ const StatisticsScreen = () => {
   const [numSignupUsers, setNumSignupUsers] = useState(0);
   const [numSignupLecturer, setNumSignupLecturer] = useState(0);
   const [numQuizzes, setNumQuizzes] = useState(0);
-  const [role,setrole]=useState(null)
-  //role = null;
+  const [avgQuizzes, setavgQuizzes] = useState(0);
+  const [avgAttemptPerUser, setavgAttemptPerUser] = useState(0);
+  const [topQuizByAvg, setTopQuizByAvg] = useState({
+    quizName: "",
+    averageScore: "",
+  });
+  const [topQuizzByAteempts, settopQuizzByAteempts] = useState(null);
+  const [topLecturerByQuizzes, setTopLecturer] = useState(null);
+  const [role, setrole] = useState(null);
+
   const db = getDatabase();
 
   useEffect(() => {
@@ -105,10 +113,196 @@ const StatisticsScreen = () => {
       }
     };
 
+    const fetchGeneralStudentsAvg = async () => {
+      try {
+        const usersRef = ref(db, "users");
+        const usersSnapshot = await get(usersRef);
+        const usersData = usersSnapshot.val();
+
+        if (usersData) {
+          let totalAverageScore = 0;
+          let totalAverageAttempts = 0;
+          let userCount = 0;
+
+          for (const userId in usersData) {
+            const userStatsRef = ref(db, `users/${userId}/quizStatistics`);
+            const userStatsSnapshot = await get(userStatsRef);
+            const userStatsData = userStatsSnapshot.val();
+
+            if (userStatsData) {
+              const quizStatsArray = Object.entries(userStatsData).map(
+                ([quizName, stats]) => ({
+                  quizName,
+                  averageScore: parseFloat(stats.averageScore.toFixed(2)),
+                  numberOfAttempts: stats.numberOfAttempts,
+                })
+              );
+
+              const userTotalScores = quizStatsArray.reduce(
+                (acc, item) => acc + item.averageScore,
+                0
+              );
+
+              const userTotalAttemps = quizStatsArray.reduce(
+                (acc, item) => acc + item.numberOfAttempts,
+                0
+              );
+              const userAverageAttemps =
+                userTotalAttemps / quizStatsArray.length;
+              const userAverageScore = userTotalScores / quizStatsArray.length;
+
+              totalAverageScore += userAverageScore;
+              totalAverageAttempts += userAverageAttemps;
+              userCount += 1;
+            }
+          }
+
+          const generalAvgScore = totalAverageScore / userCount;
+          const generalAvgAttempts = totalAverageAttempts / userCount;
+          setavgQuizzes(generalAvgScore.toFixed(2));
+          setavgAttemptPerUser(generalAvgAttempts.toFixed(2));
+        } else {
+          setavgQuizzes(0);
+          setavgAttemptPerUser(0);
+        }
+      } catch (error) {
+        console.error("Error fetching general students' average: ", error);
+      }
+    };
+
+    const fetchLecturerWithMostQuizzes = async () => {
+      try {
+        const quizzesRef = ref(db, "Quizzes");
+        const quizzesSnapshot = await get(quizzesRef);
+        const quizzesData = quizzesSnapshot.val();
+
+        if (!quizzesData) {
+          console.error("No quizzes found");
+          return;
+        }
+
+        let lecturerQuizCount = {};
+
+        // Count the number of quizzes for each lecturer
+        Object.values(quizzesData).forEach((quizDetails) => {
+          const lecturerEmail = quizDetails.lecturer; // Assuming the lecturer field in quizzes corresponds to lecturer's email
+          if (lecturerEmail) {
+            if (!lecturerQuizCount[lecturerEmail]) {
+              lecturerQuizCount[lecturerEmail] = 0;
+            }
+            lecturerQuizCount[lecturerEmail]++;
+          } else {
+            console.warn(
+              `Missing lecturer email for quiz: ${quizDetails.title}`
+            );
+          }
+        });
+
+        // Find the lecturer with the most quizzes
+        let maxQuizzes = 0;
+        let topLecturerEmail = "";
+
+        Object.entries(lecturerQuizCount).forEach(
+          ([lecturerEmail, quizCount]) => {
+            if (quizCount > maxQuizzes) {
+              maxQuizzes = quizCount;
+              topLecturerEmail = lecturerEmail;
+            }
+          }
+        );
+
+        // Get the top lecturer's details from users collection
+        const usersRef = ref(db, "users");
+        const usersSnapshot = await get(usersRef);
+        const usersData = usersSnapshot.val();
+
+        let topLecturerName = "";
+
+        // Iterate through users to find the top lecturer
+        for (const userId in usersData) {
+          if (usersData.hasOwnProperty(userId)) {
+            const user = usersData[userId];
+            if (user.email === topLecturerEmail) {
+              topLecturerName = user.fullName;
+              break;
+            }
+          }
+        }
+        setTopLecturer(topLecturerName);
+
+        // Return the count object if needed for further processing or UI update
+        return lecturerQuizCount;
+      } catch (error) {
+        console.error("Error fetching lecturer with the most quizzes: ", error);
+        // Handle error as per your application's requirements
+        throw error; // Rethrow the error or handle it accordingly
+      }
+    };
+
+    // alert(topLecturerByQuizzes)
+
+    const fetchQuizWithHighestAvg = async () => {
+      try {
+        const usersRef = ref(db, "users");
+        const usersSnapshot = await get(usersRef);
+        const usersData = usersSnapshot.val();
+
+        if (usersData) {
+          let quizScores = {};
+
+          for (const userId in usersData) {
+            const userStatsRef = ref(db, `users/${userId}/quizStatistics`);
+            const userStatsSnapshot = await get(userStatsRef);
+            const userStatsData = userStatsSnapshot.val();
+
+            if (userStatsData) {
+              Object.entries(userStatsData).forEach(([quizName, stats]) => {
+                if (!quizScores[quizName]) {
+                  quizScores[quizName] = { totalScore: 0, attempts: 0 };
+                }
+                quizScores[quizName].totalScore +=
+                  stats.averageScore * stats.numberOfAttempts;
+                quizScores[quizName].attempts += stats.numberOfAttempts;
+              });
+            }
+          }
+
+          let highestAvgQuiz = "";
+          let highestAvgScore = -1;
+          let highestAttepts = 0;
+          let highestQuizByAttempts = "";
+          for (const quizName in quizScores) {
+            const averageScore =
+              quizScores[quizName].totalScore / quizScores[quizName].attempts;
+            if (averageScore > highestAvgScore) {
+              highestAvgScore = averageScore;
+              highestAvgQuiz = quizName;
+            }
+            if (quizScores[quizName].attempts > highestAttepts) {
+              highestAttepts = quizScores[quizName].attempts;
+              highestQuizByAttempts = quizName;
+            }
+          }
+          settopQuizzByAteempts(highestQuizByAttempts);
+          setTopQuizByAvg({
+            quizName: highestAvgQuiz,
+            averageScore: highestAvgScore.toFixed(2),
+          });
+        } else {
+          setTopQuizByAvg({ quizName: "None", averageScore: 0 });
+        }
+      } catch (error) {
+        console.error("Error fetching quiz with the highest average: ", error);
+      }
+    };
+
     fetchQuizStatistics();
     if (role === "A") {
       fetchNumSignupUsers();
       fetchNumQuizzes();
+      fetchGeneralStudentsAvg();
+      fetchQuizWithHighestAvg();
+      fetchLecturerWithMostQuizzes();
     }
   }, [db, userId, role]);
 
@@ -262,10 +456,10 @@ const StatisticsScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {role === 'A' ? (
+      {role === "A" ? (
         <View style={styles.adminContainer}>
           <Text style={styles.adminTitle}>סטטיסטיקות מנהל</Text>
-          <View style={styles.statsContainer}>
+          <View style={styles.statsContainer1}>
             <LinearGradient
               colors={["#71A9E1", "#AFC3EF"]}
               style={styles.statBox}
@@ -291,6 +485,57 @@ const StatisticsScreen = () => {
               <Text style={styles.statLabel}>קורסים</Text>
             </LinearGradient>
           </View>
+
+          <View style={styles.statsContainer2}>
+            <LinearGradient
+              colors={["#F2C233", "#FFE082"]}
+              style={styles.statBox}
+            >
+              <Icon name="star" size={40} color="#ffffff" />
+
+              <Text style={styles.statValue}>{topQuizByAvg.quizName}</Text>
+              <Text style={styles.statValue2}>
+                ממוצע {topQuizByAvg.averageScore}
+              </Text>
+              <Text style={styles.statLabel}>קורס מצטיין</Text>
+            </LinearGradient>
+            <LinearGradient
+              colors={["#CD569C", "#F788D6"]}
+              style={styles.statBox}
+            >
+              <Icon name="checkmark-circle" size={40} color="#ffffff" />
+
+              <Text style={styles.statValue}>{topLecturerByQuizzes}</Text>
+              <Text style={styles.statLabel}>המרצה עם הכי הרבה קורסים</Text>
+            </LinearGradient>
+          </View>
+
+          <View style={styles.statsContainer3}>
+            <LinearGradient
+              colors={["#56B951", "#89D68C"]}
+              style={styles.statBox}
+            >
+              <Icon name="add-circle" size={40} color="#ffffff" />
+              <Text style={styles.statValue}>{topQuizzByAteempts}</Text>
+              <Text style={styles.statLabel}> קורס הכי פתיר </Text>
+            </LinearGradient>
+            <LinearGradient
+              colors={["#5054A4", "#8795C4"]}
+              style={styles.statBox}
+            >
+              <Icon name="options" size={40} color="#ffffff" />
+              <Text style={styles.statValue}>{avgQuizzes}</Text>
+              <Text style={styles.statLabel}>ממוצע סטודנטים כללי</Text>
+            </LinearGradient>
+            <LinearGradient
+              colors={["#AB2766", "#C675AE"]}
+              style={styles.statBox}
+            >
+              <Icon name="refresh-circle" size={40} color="#ffffff" />
+              <Text style={styles.statValue}>{avgAttemptPerUser}</Text>
+              <Text style={styles.statLabel}>ממוצע נסיונות </Text>
+            </LinearGradient>
+          </View>
         </View>
       ) : (
         <View style={styles.userContainer}>
@@ -302,9 +547,7 @@ const StatisticsScreen = () => {
             renderItem={renderQuizItem}
             ListHeaderComponent={renderPieChart}
             ListEmptyComponent={() => (
-              <Text style={styles.noDataText}>
-                אין סטטיסטיקות זמינות
-              </Text>
+              <Text style={styles.noDataText}>אין סטטיסטיקות זמינות</Text>
             )}
             contentContainerStyle={styles.listContainer}
           />
@@ -431,13 +674,25 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   adminTitle: {
-    fontSize: 50,
+    fontSize: 36,
     fontWeight: "bold",
     color: "#333",
-    marginBottom: 40,
+    marginBottom: 24,
     textAlign: "center",
+    textTransform: "uppercase",
+    letterSpacing: 1,
   },
-  statsContainer: {
+  statsContainer1: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+  },
+  statsContainer2: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+  },
+  statsContainer3: {
     flexDirection: "row",
     justifyContent: "space-around",
     width: "100%",
@@ -463,6 +718,13 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 19,
+    fontWeight: "bold",
+    color: "#333",
+    marginTop: 8,
+    textAlign: "center",
+  },
+  statValue2: {
+    fontSize: 16,
     fontWeight: "bold",
     color: "#333",
     marginTop: 8,
