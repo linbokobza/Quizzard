@@ -301,12 +301,12 @@ const HomeScreen = ({ navigation }) => {
       fetchRequestList();
     };
 
-    const loadFonts = async () => {
-      await Font.loadAsync({
-        Fredoka: require("../assets/fonts/Fredoka-VariableFont_wdth,wght.ttf"),
-      });
-      setFontsLoaded(true);
-    };
+    // const loadFonts = async () => {
+    //   await Font.loadAsync({
+    //     Fredoka: require("../assets/fonts/Fredoka-VariableFont_wdth,wght.ttf"),
+    //   });
+    //   setFontsLoaded(true);
+    // };
 
     loadFonts();
   }, []);
@@ -428,14 +428,15 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 20,
     justifyContent: "center",
+
   },
   greetingText: {
-    fontFamily: "Fredoka-VariableFont_wdth,wght",
+    flex: 1,
     fontSize: 30,
     fontWeight: "bold",
     color: "#333",
-    textAlign: "left",
-    marginLeft: 30,
+    textAlign: "right",
+    marginTop: 15,
   },
   userName: {
     fontSize: 24,

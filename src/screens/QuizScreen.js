@@ -15,7 +15,15 @@ import {
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { COLORS } from "../constants/theme";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { getDatabase, ref, get, update, set } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  get,
+  update,
+  set,
+  runTransaction,
+  serverTimestamp,
+} from "firebase/database";
 
 const QuizScreen = ({ navigation }) => {
   const route = useRoute();
@@ -33,72 +41,202 @@ const QuizScreen = ({ navigation }) => {
   const [progress, setProgress] = useState(new Animated.Value(0));
   const db = getDatabase();
 
-  const cardClasses =
-    "max-w-sm mx-auto bg-white dark:bg-zinc-800 rounded-lg shadow-md p-6 text-center";
-  const textClasses = "text-zinc-800 dark:text-zinc-200";
-  const largeTextClasses =
-    "text-4xl font-bold text-zinc-900 dark:text-zinc-100";
-  const borderClasses = "border-t border-zinc-300 dark:border-zinc-600";
-  const smallTextClasses = "text-zinc-600 dark:text-zinc-400";
   useEffect(() => {
-    const fetchQuestions = async () => {
-      const quizRef = ref(db, `Quizzes/${quizId}`);
-      try {
-        const snapshot = await get(quizRef);
-        if (snapshot.exists()) {
-          const quizData = snapshot.val();
-          if (quizData.questions) {
-            const questionsRef = ref(db, `Quizzes/${quizId}/questions`);
-            const questionsSnapshot = await get(questionsRef);
-            if (questionsSnapshot.exists()) {
-              const questionsData = questionsSnapshot.val();
-              const formattedQuestions = Object.values(questionsData).map(
-                (question) => ({
-                  question: question.title,
-                  options: [
-                    ...question.wrongAnswers,
-                    question.correctAnswer,
-                  ].sort(() => Math.random() - 0.5),
-                  correct_option: question.correctAnswer,
-                })
-              );
-
-              // Randomly shuffle the questions
-              const shuffledQuestions = formattedQuestions.sort(
-                () => Math.random() - 0.5
-              );
-
-              // Limit the number of questions (e.g., to 10)
-              const limitedQuestions = shuffledQuestions.slice(0, 3);
-
-              setQuestions(limitedQuestions);
-            } else {
-              setQuestions([]); // Set questions to an empty array
-            }
-          } else {
-            setQuestions([]); // Set questions to an empty array
-          }
-          setLoading(false);
-        } else {
-          console.log("Quiz not found.");
-        }
-      } catch (error) {
-        console.error("Error fetching quiz data: ", error);
-      }
+    const fetchAndSetQuestions = async () => {
+      setLoading(true);
+      const selectedQuestionIds = await selectQuestionsForReview(
+        userId,
+        quizId,
+        10
+      ); // Limit to 10 questions
+      const fetchedQuestions = await fetchQuestionsDetails(
+        quizId,
+        selectedQuestionIds
+      );
+      setQuestions(fetchedQuestions);
+      setLoading(false);
     };
 
-    fetchQuestions();
+    fetchAndSetQuestions();
   }, []);
+
+  const fetchQuestionsDetails = async (quizId, questionIds) => {
+    const quizRef = ref(db, `Quizzes/${quizId}/questions`);
+    const snapshot = await get(quizRef);
+
+    if (snapshot.exists()) {
+      const questionsData = snapshot.val();
+      return questionIds.map((id) => {
+        const question = questionsData[id];
+        return {
+          questionId: id,
+          question: question.title,
+          options: [...question.wrongAnswers, question.correctAnswer].sort(
+            () => Math.random() - 0.5
+          ),
+          correct_option: question.correctAnswer,
+          isCorrect: false,
+          stats: question.stats || {
+            correctCount: 0,
+            incorrectCount: 0,
+            lastAnswered: 0,
+            interval: 1,
+            weight: 1,
+          },
+        };
+      });
+    }
+    return [];
+  };
+
+  const selectQuestionsForReview = async (userId, quizId, totalQuestions) => {
+    const userRef = ref(db, `users/${userId}/questionStatistics/${quizId}`);
+    const snapshot = await get(userRef);
+    const questionStats = snapshot.val() || {};
+
+    const now = Date.now();
+    const questions = Object.entries(questionStats).map(([id, stats]) => ({
+      id,
+      dueDate: stats.lastAnswered + stats.interval * 24 * 60 * 60 * 1000,
+      weight: stats.weight,
+    }));
+
+    // Sort questions by due date (oldest first) and weight (highest first)
+    questions.sort((a, b) => {
+      if (a.dueDate !== b.dueDate) {
+        return a.dueDate - b.dueDate;
+      }
+      return b.weight - a.weight;
+    });
+
+    // Select questions that are due or new questions if not enough due questions
+    const selectedQuestions = questions.slice(0, 3);
+    const remainingCount = totalQuestions - selectedQuestions.length;
+
+    if (remainingCount > 0) {
+      // Fetch new questions not in the user's history
+      const newQuestions = await fetchNewQuestions(
+        quizId,
+        remainingCount,
+        Object.keys(questionStats)
+      );
+      selectedQuestions.push(...newQuestions);
+    }
+
+    return selectedQuestions.map((q) => q.id);
+  };
+
+  const fetchNewQuestions = async (quizId, count, excludeIds) => {
+    const quizRef = ref(db, `Quizzes/${quizId}/questions`);
+    const snapshot = await get(quizRef);
+
+    if (snapshot.exists()) {
+      const allQuestions = Object.keys(snapshot.val());
+      const newQuestions = allQuestions
+        .filter((id) => !excludeIds.includes(id))
+        .sort(() => Math.random() - 0.5)
+        .slice(0, count);
+
+      return newQuestions.map((id) => ({ id }));
+      Fwei;
+    }
+    return [];
+  };
+
+  const calculateNextInterval = (
+    correctCount,
+    incorrectCount,
+    lastInterval,
+    weight
+  ) => {
+    const totalAttempts = correctCount + incorrectCount;
+    const correctRatio = correctCount / totalAttempts;
+
+    let newInterval;
+    let newWeight;
+
+    if (correctRatio >= 0.8) {
+      newInterval = Math.round(lastInterval * 2);
+      newWeight = Math.min(weight * 1.1, 2.5);
+    } else if (correctRatio >= 0.6) {
+      newInterval = lastInterval;
+      newWeight = weight;
+    } else {
+      newInterval = Math.max(Math.round(lastInterval * 0.5), 1);
+      newWeight = Math.max(weight * 0.9, 0.5);
+    }
+
+    return { interval: newInterval, weight: newWeight };
+  };
+
+  const updateQuestionStatistics = async (
+    userId,
+    quizId,
+    questionId,
+    isCorrect
+  ) => {
+    const statsRef = ref(
+      db,
+      `users/${userId}/questionStatistics/${quizId}/${questionId}`
+    );
+
+    try {
+      await runTransaction(statsRef, (currentData) => {
+        if (currentData === null) {
+          return {
+            correctCount: isCorrect ? 1 : 0,
+            incorrectCount: isCorrect ? 0 : 1,
+            lastAnswered: serverTimestamp(),
+            interval: 1,
+            weight: 1,
+          };
+        }
+
+        const newData = { ...currentData };
+        if (isCorrect) {
+          newData.correctCount++;
+        } else {
+          newData.incorrectCount++;
+        }
+
+        newData.lastAnswered = serverTimestamp();
+
+        const { interval, weight } = calculateNextInterval(
+          newData.correctCount,
+          newData.incorrectCount,
+          currentData.interval,
+          currentData.weight
+        );
+
+        newData.interval = interval;
+        newData.weight = weight;
+
+        return newData;
+      });
+    } catch (error) {
+      console.error("Error updating question statistics: ", error);
+    }
+  };
 
   const validateAnswer = (selectedOption) => {
     let correct_option = questions[currentQuestionIndex]["correct_option"];
     setCurrentOptionSelected(selectedOption);
     setCorrectOption(correct_option);
     setIsOptionsDisabled(true);
-    if (selectedOption === correct_option) {
+    const isCorrect = selectedOption === correct_option;
+    if (isCorrect) {
       setScore(score + 1);
     }
     setShowNextButton(true);
+
+    // Update question statistics
+    const currentQuestion = questions[currentQuestionIndex];
+    updateQuestionStatistics(
+      userId,
+      quizId,
+      currentQuestion.questionId,
+      isCorrect
+    );
   };
 
   const handleNext = () => {
@@ -248,7 +386,7 @@ const QuizScreen = ({ navigation }) => {
     if (showNextButton) {
       return (
         <TouchableOpacity onPress={handleNext} style={styles.nextButton}>
-          <Text style={styles.nextButtonText}>Next</Text>
+          <Text style={styles.nextButtonText}>הבא</Text>
         </TouchableOpacity>
       );
     } else {
@@ -356,7 +494,6 @@ const QuizScreen = ({ navigation }) => {
     </ImageBackground>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

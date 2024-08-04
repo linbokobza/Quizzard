@@ -6,7 +6,14 @@
     "orientation": "portrait",
     "icon": "./assets/logo.png",
     "userInterfaceStyle": "light",
-    "sourceExts": [ "js", "json", "ts", "tsx", "jsx", "vue"],
+    "sourceExts": [
+      "js",
+      "json",
+      "ts",
+      "tsx",
+      "jsx",
+      "vue"
+    ],
     "splash": {
       "image": "./assets/logo.png",
       "resizeMode": "contain",
@@ -25,7 +32,14 @@
       }
     },
     "web": {
-      "sourceExts": [ "js", "json", "ts", "tsx", "jsx", "vue"],
+      "sourceExts": [
+        "js",
+        "json",
+        "ts",
+        "tsx",
+        "jsx",
+        "vue"
+      ],
       "favicon": "./assets/logo.png"
     }
   }

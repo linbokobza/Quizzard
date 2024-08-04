@@ -55,7 +55,8 @@
     "react-native-web": "~0.19.10",
     "reactstrap": "^9.2.2",
     "reaviz": "^15.18.3",
-    "victory-native": "^41.0.1"
+    "victory-native": "^41.0.1",
+    "expo-font": "~12.0.7"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",

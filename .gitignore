@@ -5,8 +5,12 @@ node_modules/
 
 # Expo
 .expo/
+.expo-shared/
 dist/
 web-build/
+ExpoKitApp/
+index.android.bundle
+index.ios.bundle
 
 # Native
 *.orig.*
@@ -15,6 +19,8 @@ web-build/
 *.p12
 *.key
 *.mobileprovision
+*.iml
+debug.keystore
 
 # Metro
 .metro-health-check*
@@ -23,13 +29,28 @@ web-build/
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+firebase-debug.log
+firebase-debug.*.log
 
 # macOS
 .DS_Store
 *.pem
+Thumbs.db
 
 # local env files
 .env*.local
+.env
+.env.development
+.env.production
+.env.test
 
 # typescript
 *.tsbuildinfo
+
+# Android/iOS build artifacts
+android/
+ios/
+
+# IDEs and Editors
+.vscode/
+.idea/
