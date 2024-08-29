@@ -19,6 +19,7 @@ const SignInScreen = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  console.warn = () => {};
 
   const handleSubmit = async () => {
     if (email && password) {

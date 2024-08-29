@@ -5,9 +5,9 @@ import { Ionicons } from "@expo/vector-icons";
 const ProfileButton = ({ imageSource, buttonText, onPress }) => {
   return (
     <TouchableOpacity style={styles.buttonContainer} onPress={onPress}>
-      <Image source={imageSource} style={styles.buttonImage} />
+      <Ionicons name="arrow-back" size={24} color="black" />
       <Text style={styles.buttonText}>{buttonText}</Text>
-      <Ionicons name="arrow-forward" size={24} color="black" />
+      <Image source={imageSource} style={styles.buttonImage} />
     </TouchableOpacity>
   );
 };
@@ -30,8 +30,10 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "black", // Text color
     fontSize: 18,
+    writingDirection: "rtl",
+
     flex: 1, // Takes remaining space in the middle
-    marginLeft: 10,
+    marginRight: 10,
   },
 });
 

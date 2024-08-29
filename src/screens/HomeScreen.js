@@ -19,8 +19,7 @@ import PointsContainer from "../components/PointsContainer";
 import DeleteQuizModal from "../components/DeleteQuizModal";
 import AddQuestionModal from "../components/AddQuestionModal";
 import DeleteQuestionModal from "../components/DeleteQuestionModal";
-import { useFonts } from "expo-font";
-import * as Font from "expo-font";
+import { LogBox } from "react-native";
 
 const HomeScreen = ({ navigation }) => {
   const [userData, setUserData] = useState({});
@@ -37,10 +36,7 @@ const HomeScreen = ({ navigation }) => {
   const [isDeleteQuestionModalVisible, setDeleteQuestionModalVisible] =
     useState(false);
   let userEmail = null;
-  let x = 6;
-  const [fontsLoaded, setFontsLoaded] = useState(false);
-
-  //navigation.navigate("Statistics", { userId:auth.currentUser.uid,role: userData.role });
+  console.warn = () => {};
 
   const toggleDeleteQuizModal = () => {
     setDeleteQuizModalVisible(!isDeleteQuizModalVisible);
@@ -217,7 +213,7 @@ const HomeScreen = ({ navigation }) => {
     if (item.year == userData.year) {
       return (
         <TouchableOpacity
-          style={styles.quizCard}
+          style={[styles.quizCard, { marginVertical: 12 }]}
           onPress={() =>
             navigation.navigate("QuizScreen", {
               quizId: item.id,
@@ -226,12 +222,17 @@ const HomeScreen = ({ navigation }) => {
             })
           }
         >
-          <Image
-            source={quizImages[item.image]}
-            style={styles.quizImage}
-            defaultSource={require("../assets/images/user.png")}
-          />
-          <Text style={styles.quizTitle}>{item.title}</Text>
+          <View style={styles.quizCardContent}>
+            <Image
+              source={quizImages[item.image]}
+              style={styles.quizImage}
+              defaultSource={require("../assets/images/user.png")}
+            />
+            <View style={styles.quizTextContainer}>
+              <Text style={styles.quizTitle}>{item.title}</Text>
+            </View>
+          </View>
+          <View style={styles.quizCardOverlay} />
         </TouchableOpacity>
       );
     } else {
@@ -300,16 +301,8 @@ const HomeScreen = ({ navigation }) => {
 
       fetchRequestList();
     };
-
-    // const loadFonts = async () => {
-    //   await Font.loadAsync({
-    //     Fredoka: require("../assets/fonts/Fredoka-VariableFont_wdth,wght.ttf"),
-    //   });
-    //   setFontsLoaded(true);
-    // };
-
-    loadFonts();
   }, []);
+
 
   useEffect(() => {
     fetchQuizzes();
@@ -378,25 +371,31 @@ const HomeScreen = ({ navigation }) => {
 
       <PointsContainer
         userPoints={userData.points}
-        userRanking={4}
       ></PointsContainer>
 
       <View style={styles.yearContainer}>
-        <Image
-          source={require("../assets/images/pencil.png")}
-          style={{ width: 25, height: 25, marginRight: 15 }}
-        />
         <Text style={styles.pointsText}>
           אתה נמצא ב{yearDisplay[userData.year]} ללימודיך
         </Text>
+        <Image
+          source={require("../assets/images/pencil.png")}
+          style={{ width: 25, height: 25, marginLeft: 15 }}
+        />
       </View>
 
-      <FlatList
-        data={quizzes}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderQuizCard}
-        style={styles.quizList}
-      />
+      {quizzes.length > 0 ? (
+        <FlatList
+          data={quizzes}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderQuizCard}
+          style={styles.quizList}
+          contentContainerStyle={{ paddingBottom: 80 }} // Adjust the bottom padding to accommodate the FAB
+        />
+      ) : (
+        <View style={styles.noQuizzesContainer}>
+          <Text style={styles.noQuizzesText}>אין קוויזים זמינים כרגע</Text>
+        </View>
+      )}
       {isDarkOverlayVisible && <View style={styles.darkOverlay} />}
       {renderFloatingActionButton()}
     </SafeAreaView>
@@ -418,7 +417,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 24,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 16,
   },
   contentContainer: {
     flexDirection: "row",
@@ -426,17 +428,15 @@ const styles = StyleSheet.create({
   },
   greetingContainer: {
     flex: 1,
-    marginRight: 20,
     justifyContent: "center",
-
   },
   greetingText: {
-    flex: 1,
-    fontSize: 30,
+    fontSize: 23,
     fontWeight: "bold",
-    color: "#333",
+    color: "#333333",
     textAlign: "right",
-    marginTop: 15,
+    fontFamily: "David",
+    marginTop: 4,
   },
   userName: {
     fontSize: 24,
@@ -445,14 +445,16 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
   iconContainer: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
+    marginLeft: 16,
   },
   profileImageContainer: {
-    width: 70,
-    height: 70,
+    width: 80,
+    height: 80,
     borderRadius: 25,
     overflow: "hidden",
+    marginRight: 16,
   },
   profileImage: {
     position: "relative",
@@ -462,40 +464,71 @@ const styles = StyleSheet.create({
   yearContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 5,
+    marginTop: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 50,
   },
   pointsText: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: "bold",
-    color: "#333", // Dark gray text color
-    textAlign: "center",
-    paddingTop: 25,
-    paddingBottom: 20,
+    writingDirection: "rtl",
+    color: "#424242",
+    textAlign: "left",
   },
   quizList: {
     flex: 1,
   },
 
   quizCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    marginTop: 0,
+    marginHorizontal: 5,
+  },
+  quizCardContent: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 12,
-    marginBottom: 8,
-    backgroundColor: "#FFFDFB", // White background for quiz cards
-    borderRadius: 12,
-    elevation: 2, // Add elevation for a subtle shadow on Android
+    paddingVertical: 7,
+    paddingHorizontal: 24,
   },
   quizImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 20,
-    marginRight: 12,
+    width: 60,
+    height: 60,
+    borderRadius: 16,
+    marginRight: 16,
+  },
+  quizTextContainer: {
+    flex: 1,
   },
   quizTitle: {
     fontSize: 18,
-    fontWeight: "normal",
-    color: "#333", // Dark gray text color
+    fontWeight: "bold",
+    color: "#333333",
+    marginBottom: 4,
+    writingDirection: "rtl",
   },
+  quizSubtitle: {
+    fontSize: 16,
+    color: "#666666",
+  },
+  quizCardOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    borderRadius: 16,
+  },
+
   logoutButton: {
     padding: 8,
     backgroundColor: "#FF0000", // Red color

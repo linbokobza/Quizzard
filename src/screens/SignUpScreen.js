@@ -29,6 +29,7 @@ const SignUpScreen = () => {
   const [year, setYear] = useState("1"); // Set initial value to "1"
   const [errorMessage, setErrorMessage] = useState(null); // State for error message
   const [gender, setGender] = useState("female"); // Set initial value to "female"
+  console.warn = () => {};
 
   const auth = getAuth();
   const db = getFirestore();

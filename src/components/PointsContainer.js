@@ -1,7 +1,9 @@
 import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 
-const PointsContainer = ({ userPoints, userRanking }) => {
+let userRanking = 0;
+
+const PointsContainer = ({ userPoints, onPress }) => {
   if (userPoints < 100) {
     userRanking = 4;
   } else if (userPoints > 100 && userPoints <= 200) {
@@ -11,32 +13,44 @@ const PointsContainer = ({ userPoints, userRanking }) => {
   } else if (userPoints > 300) {
     userRanking = 1;
   }
+
   const medalImages = {
     1: require("../assets/medals/1.png"),
     2: require("../assets/medals/2.png"),
     3: require("../assets/medals/3.png"),
     4: require("../assets/medals/4.png"),
   };
+
+  const getRankingText = () => {
+    switch (userRanking) {
+      case 1:
+        return "רמה 1";
+      case 2:
+        return "רמה 2";
+      case 3:
+        return "רמה 3";
+      case 4:
+        return "רמה 4";
+      default:
+        return "משתתף";
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      {/* Left side - Image with user points */}
-      <View style={styles.leftContainer}>
+    <TouchableOpacity style={styles.container} onPress={onPress}>
+      <View style={styles.pointsContainer}>
         <Image
           source={require("../assets/images/star.png")}
           style={styles.image}
         />
-        <Text style={styles.text}>{userPoints} Points</Text>
+        <Text style={styles.pointsText}>{userPoints} נקודות</Text>
       </View>
-
-      {/* Divider */}
-      <Text style={styles.divider}>|</Text>
-
-      {/* Right side - Image with ranking */}
-      <View style={styles.rightContainer}>
-        <Image source={medalImages[userRanking]} style={styles.image} />
-        <Text style={styles.text}>Rank {userRanking}</Text>
+      <Text> | </Text>
+      <View style={styles.levelContainer}>
+        <Image source={medalImages[userRanking]} style={styles.medalImage} />
+        <Text style={styles.levelText}>{getRankingText()}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -44,38 +58,47 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    padding: 16,
-    marginTop: 30,
-    backgroundColor: "#FFD9B5", // Background color for the container
-    borderRadius: 8,
+    justifyContent: "space-between",
+    backgroundColor: "#FFD9B5",
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
-  leftContainer: {
+  pointsContainer: {
     flexDirection: "row",
     alignItems: "center",
-    paddingRight: 20,
   },
-  rightContainer: {
+  levelContainer: {
     flexDirection: "row",
     alignItems: "center",
-    paddingRight: 20,
   },
   image: {
-    width: 40,
-    height: 40,
-    marginRight: 8,
-    resizeMode: "contain", // Adjust based on your image content
+    width: 36,
+    height: 36,
+    marginRight: 12,
   },
-  text: {
-    fontSize: 20,
+  medalImage: {
+    width: 36,
+    height: 36,
+    marginRight: 12,
+  },
+  pointsText: {
+    fontSize: 18,
     fontWeight: "bold",
     color: "#383838",
   },
-  divider: {
-    marginHorizontal: 8,
-    marginRight: 30,
-    fontSize: 24,
-    color: "#333",
+  levelText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#383838",
   },
 });
 

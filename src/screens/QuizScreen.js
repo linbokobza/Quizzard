@@ -41,9 +41,61 @@ const QuizScreen = ({ navigation }) => {
   const [progress, setProgress] = useState(new Animated.Value(0));
   const db = getDatabase();
 
+  // useEffect(() => {
+  //   const fetchAndSetQuestions = async () => {
+  //     setLoading(true);
+  //     const selectedQuestionIds = await selectQuestionsForReview(
+  //       userId,
+  //       quizId,
+  //       10
+  //     ); // Limit to 10 questions
+  //     const fetchedQuestions = await fetchQuestionsDetails(
+  //       quizId,
+  //       selectedQuestionIds
+  //     );
+  //     setQuestions(fetchedQuestions);
+  //     setLoading(false);
+  //   };
+
+  //   fetchAndSetQuestions();
+  // }, []);
+
   useEffect(() => {
     const fetchAndSetQuestions = async () => {
       setLoading(true);
+
+      // Check if the quiz exists in questionStatistics
+      const userStatsRef = ref(
+        db,
+        `users/${userId}/questionStatistics/${quizId}`
+      );
+      const userStatsSnapshot = await get(userStatsRef);
+
+      if (!userStatsSnapshot.exists()) {
+        // Quiz not in questionStatistics, so initialize it
+        const quizQuestionsRef = ref(db, `Quizzes/${quizId}/questions`);
+        const quizQuestionsSnapshot = await get(quizQuestionsRef);
+
+        if (quizQuestionsSnapshot.exists()) {
+          const questionsData = quizQuestionsSnapshot.val();
+          const updates = {};
+
+          Object.keys(questionsData).forEach((questionId) => {
+            updates[
+              `users/${userId}/questionStatistics/${quizId}/${questionId}`
+            ] = {
+              correctCount: 0,
+              incorrectCount: 0,
+              lastAnswered: 0,
+              interval: 1,
+              weight: 1,
+            };
+          });
+
+          await update(ref(db), updates);
+        }
+      }
+
       const selectedQuestionIds = await selectQuestionsForReview(
         userId,
         quizId,
@@ -110,7 +162,7 @@ const QuizScreen = ({ navigation }) => {
     });
 
     // Select questions that are due or new questions if not enough due questions
-    const selectedQuestions = questions.slice(0, 3);
+    const selectedQuestions = questions.slice(0, 10);
     const remainingCount = totalQuestions - selectedQuestions.length;
 
     if (remainingCount > 0) {
