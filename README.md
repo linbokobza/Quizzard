@@ -1,8 +1,8 @@
-# Quizzard
+# Quizzard 🎓
 
 **Quizzard** is a smart quiz application designed to enhance the learning process for students by personalizing the questions based on each user's performance and history. The application focuses on identifying areas where students struggle and emphasizes those topics to reinforce learning, utilizing principles of "spaced repetition."
 
-## Technologies
+## Technologies 
 
 The application was developed using the following technologies:
 
@@ -10,7 +10,7 @@ The application was developed using the following technologies:
 - **Firebase**: Used for data storage and user authentication.
 - **Expo**: To streamline development and deployment.
 
-## Installation
+## Installation 
 
 To run Quizzard in a local development environment, follow these steps:
 
