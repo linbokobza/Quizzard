@@ -49,7 +49,14 @@ Quizzard provides a personalized learning experience by adapting to each user's 
 ## Demonstration
 
 To see Quizzard in action:
+
 ![1](https://github.com/user-attachments/assets/fa72b492-9602-4f9b-b0de-ff853f8c21f4)
+![2](https://github.com/user-attachments/assets/486edf5e-4814-4323-8ce2-8d93350ddef7)
+![3](https://github.com/user-attachments/assets/d9082454-a067-4645-84bd-003464c73cd3)
+![4](https://github.com/user-attachments/assets/d8849a10-8e2e-42fa-8407-56cfad8e8e0e)
+![5](https://github.com/user-attachments/assets/5129284e-06ea-41bc-b961-b0ea8f7a6492)
+![6](https://github.com/user-attachments/assets/bd4f1858-e1bf-460e-8d18-4c16a043e87b)
+![7](https://github.com/user-attachments/assets/271f087d-bb88-4d5e-bacb-0df17e4bbdc9)
 
 
 For more information, visit the [GitHub repository](https://github.com/linbokobza/Quizzard).
