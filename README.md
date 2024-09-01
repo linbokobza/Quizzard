@@ -48,6 +48,8 @@ Quizzard provides a personalized learning experience by adapting to each user's 
 
 ## Demonstration
 
-To see Quizzard in action, check out the demonstration video [here](#).
+To see Quizzard in action:
+![1](https://github.com/user-attachments/assets/fa72b492-9602-4f9b-b0de-ff853f8c21f4)
+
 
 For more information, visit the [GitHub repository](https://github.com/linbokobza/Quizzard).
